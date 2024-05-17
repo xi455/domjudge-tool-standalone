@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "domjudge-tool-standalone"
+version = "0.1.0"
+description = ""
+authors = ["xi455 <a3083493@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+streamlit = "^1.34.0"
+domjudge-tool-cli = "^0.2.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
