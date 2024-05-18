@@ -40,23 +40,23 @@ st.write(content)
 st.sidebar.button("清除暫存帳密", on_click=clear_owner)
 # st.sidebar.button("取得 Judge 資訊")
 
-animal = st.form("my_animal")
+login_form = st.form("login_form")
 
-host = animal.text_input(
+host = login_form.text_input(
     "網址連結",
     key="host",
     value=domserver.get("host", "https://127.0.0.1:8000/"),
     placeholder="請輸入網址連結",
 )
 
-username = animal.text_input(
+username = login_form.text_input(
     "帳號名稱",
     key="username",
     value=domserver.get("username", "admin"),
     placeholder="請輸入帳號名稱",
 )
 
-password = animal.text_input(
+password = login_form.text_input(
     "密碼",
     key="password",
     value=domserver.get("password", None),
@@ -64,45 +64,45 @@ password = animal.text_input(
     type="password",
 )
 
-version = animal.text_input(
+version = login_form.text_input(
     "Judge 版本",
     key="version",
     value=domserver.get("version", "7.3.4"),
     placeholder="請輸入 Judge 版本",
 )
 
-api_version = animal.text_input(
+api_version = login_form.text_input(
     "API 版本",
     key="api_version",
     value=domserver.get("api_version", "v4"),
     placeholder="請輸入 API 版本",
 )
 
-disable_ssl = animal.checkbox(
+disable_ssl = login_form.checkbox(
     "Disable SSL",
     key="disable_ssl",
     value=domserver.get("disable_ssl", False),
 )
-timeout = animal.number_input(
+timeout = login_form.number_input(
     "Timeout",
       key="timeout", 
       value=domserver.get("timout", 1.00), format="%.2f",
       placeholder="請輸入 Timeout 時間",
 )
-max_connections = animal.number_input(
+max_connections = login_form.number_input(
     "Max Connections", 
     key="max_connections", 
     value=domserver.get("max_connections", 10),
     placeholder="請輸入 Max Connections 數量",
 )
-max_keepalive_connections = animal.number_input(
+max_keepalive_connections = login_form.number_input(
     "Max Keepalive Connections",
     key="max_keepalive_connections",
     value=domserver.get("max_keepalive_connections", 10),
     placeholder="請輸入 Max Keepalive Connections 數量",
 )
 
-submit = animal.form_submit_button("登入")
+submit = login_form.form_submit_button("登入")
 
 if submit:
     owner_info = general.config(
