@@ -1,4 +1,6 @@
 import streamlit as st
+import os
+import pkg_resources
 
 from domjudge_tool_cli.commands import emails
 
@@ -6,15 +8,32 @@ from utils.login import login_required
 
 st.set_page_config(page_title="創建帳號頁面", page_icon="📄")
 
+# @st.cache_data
+def convert_df(pkg_path):
+    path = pkg_resources.resource_filename("domjudge_tool_cli", pkg_path)
+
+    with open(path, "r", encoding="utf-8") as f:
+        csv = f.read()
+
+    return csv
+
 
 @login_required
 def emails_page():
     st.sidebar.header("創建帳號")
     st.title("創建帳號")
 
+    csv = convert_df("templates/csv/import-users-teams.csv")
+    st.download_button(
+        label="Download Example Data as CSV",
+        data=csv,
+        file_name="example_users_teams.csv",
+        mime="text/csv",
+    )
+
     email_form = st.form("email_form")
 
-    emails_csv = st.file_uploader("開啟帳號 .csv 檔案", type="csv")
+    emails_csv = email_form.file_uploader("開啟帳號 .csv 檔案", type="csv")
 
     template_dir = email_form.text_input(
         "模板目錄",
@@ -76,7 +95,7 @@ def emails_page():
         type="password",
     )
 
-    submit = email_form.form_submit_button("登入")
+    submit = email_form.form_submit_button("寄送")
 
     if submit:
         try:
