@@ -1,15 +1,28 @@
 # app.py
-import streamlit as st
+import json
+import os
 
-from utils.file import remove_tmp_folder
+import streamlit as st
+from domjudge_tool_cli.commands import general
 
 st.set_page_config(
     page_title="首頁",
     page_icon="👋",
 )
+
+def clear_owner():
+    if os.path.exists("domserver.json"):
+        os.remove("domserver.json")
+        st.success("清除成功")
+
 st.sidebar.header("首頁")
 st.title("DOMjudge 題目管理工具")
 
+if os.path.exists("domserver.json"):
+    with open("domserver.json", "r") as f:
+        domserver = json.load(f)
+else:
+    domserver = dict()
 
 content = """
 目前處在開發階段，尚未提供任意功能。\n
@@ -24,56 +37,95 @@ content = """
 """
 
 st.write(content)
+st.sidebar.button("清除暫存帳密", on_click=clear_owner)
+# st.sidebar.button("取得 Judge 資訊")
 
-def clear_state():
-    remove_tmp_folder()
-    st.session_state.clear()
+animal = st.form("my_animal")
 
-st.sidebar.button("清除暫存帳密", on_click=clear_state)
-st.sidebar.button("取得 Judge 資訊")
-
-
-host = st.text_input(
+host = animal.text_input(
     "網址連結",
     key="host",
-    value=None,
+    value=domserver.get("host", "https://127.0.0.1:8000/"),
     placeholder="請輸入網址連結",
 )
 
-username = st.text_input(
+username = animal.text_input(
     "帳號名稱",
     key="username",
-    value=None,
+    value=domserver.get("username", "admin"),
     placeholder="請輸入帳號名稱",
 )
 
-password = st.text_input(
+password = animal.text_input(
     "密碼",
     key="password",
-    value=None,
+    value=domserver.get("password", None),
     placeholder="請輸入密碼",
+    type="password",
 )
 
-version = st.text_input(
+version = animal.text_input(
     "Judge 版本",
     key="version",
-    value="7.3.4",
+    value=domserver.get("version", "7.3.4"),
     placeholder="請輸入 Judge 版本",
 )
 
-api_version = st.text_input(
+api_version = animal.text_input(
     "API 版本",
     key="api_version",
-    value="v4",
+    value=domserver.get("api_version", "v4"),
     placeholder="請輸入 API 版本",
 )
 
-st.button("登入")
-st.button("註冊")
-# st.button("新增範例測資", on_click=lambda: create_folder("data/sample"))
+disable_ssl = animal.checkbox(
+    "Disable SSL",
+    key="disable_ssl",
+    value=domserver.get("disable_ssl", False),
+)
+timeout = animal.number_input(
+    "Timeout",
+      key="timeout", 
+      value=domserver.get("timout", 1.00), format="%.2f",
+      placeholder="請輸入 Timeout 時間",
+)
+max_connections = animal.number_input(
+    "Max Connections", 
+    key="max_connections", 
+    value=domserver.get("max_connections", 10),
+    placeholder="請輸入 Max Connections 數量",
+)
+max_keepalive_connections = animal.number_input(
+    "Max Keepalive Connections",
+    key="max_keepalive_connections",
+    value=domserver.get("max_keepalive_connections", 10),
+    placeholder="請輸入 Max Keepalive Connections 數量",
+)
 
+submit = animal.form_submit_button("登入")
 
-if __name__ == "__main__":
-    import sys
-    if "../" not in sys.path:
-        sys.path.append("../")
+if submit:
+    owner_info = general.config(
+        host=host,
+        username=username,
+        password=password,
+        version=version,
+        api_version=api_version,
+        disable_ssl=disable_ssl,
+        timeout=timeout,
+        max_connections=max_connections,
+        max_keepalive_connections=max_keepalive_connections,
+    )
+
+    try:
+        test = general.check(
+            host=host,
+            username=username,
+            password=password,
+        )
+        st.success(f"登入成功")
+        st.session_state["logged_in"] = True
+
+    except Exception as e:
+        st.error(f"錯誤：{e}")
+        st.session_state["logged_in"] = False
