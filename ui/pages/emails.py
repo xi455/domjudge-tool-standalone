@@ -1,14 +1,13 @@
-import streamlit as st
-import os
 import pkg_resources
+import streamlit as st
 
-from domjudge_tool_cli.commands import emails
+from domjudge_tool_cli.commands.emails import send_user_accounts
 
-from utils.login import login_required
+from utils.check import login_required
 
 st.set_page_config(page_title="創建帳號頁面", page_icon="📄")
 
-# @st.cache_data
+@st.cache_data
 def convert_df(pkg_path):
     path = pkg_resources.resource_filename("domjudge_tool_cli", pkg_path)
 
@@ -49,7 +48,7 @@ def emails_page():
         placeholder="請輸入網址連結",
     )
 
-    port = email_form.text_input(
+    port = email_form.number_input(
         "端口",
         key="port",
         value=None,
@@ -69,24 +68,26 @@ def emails_page():
         value=False,
     )
 
-    format = email_form.text_input(
-        "Format",
-        key="format",
-        value=None,
-        placeholder="請輸入 Format",
-    )
+    # format = email_form.text_input(
+    #     "Format",
+    #     key="format",
+    #     value=None,
+    #     placeholder="請輸入 Format",
+    # )
     timeout = email_form.number_input(
         "Timeout",
         key="timeout", 
         value=None,
         placeholder="請輸入 Timeout 時間",
     )
+
     username = email_form.text_input(
         "Username", 
         key="username", 
         value=None,
         placeholder="請輸入 Username",
     )
+
     password = email_form.text_input(
         "Password",
         key="password",
@@ -99,7 +100,7 @@ def emails_page():
 
     if submit:
         try:
-            emails.send_user_accounts(
+            send_user_accounts(
                 emails_csv=emails_csv,
                 template_dir=template_dir,
                 host=host,

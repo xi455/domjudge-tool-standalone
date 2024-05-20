@@ -1,6 +1,7 @@
 from functools import wraps
 
 import streamlit as st
+from domjudge_tool_cli.services.web.v8 import DomServerWeb
 
 
 def login_required(func):
