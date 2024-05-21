@@ -1,10 +1,10 @@
 import os
 import streamlit as st
 
-from domjudge_tool_cli.commands.scoreboard import export
 from domjudge_tool_cli.commands.general import get_or_ask_config
 
 from utils.check import login_required
+from customization.scoreboard import export
 
 @login_required
 def scoreboard_page():
@@ -37,18 +37,19 @@ def scoreboard_page():
         placeholder="請輸入網址連結",
     )
 
-    path_prefix = st.text_input(
-        "路徑前綴",
-        key="path_prefix",
-        value=None,
-        placeholder="請輸入路徑前綴",
-    )
+    col1, col2, col3, col4 = st.columns([2, 2, 4, 4])
+    export_button = col1.button("匯出分數")
 
-    export_button = st.button("匯出分數")
     if export_button:
         try:
-            export(cid, filename, url, path_prefix)
-            st.success("匯出成功")
+            csv_data = export(cid, url)
+            col2.download_button(
+                label="下載檔案",
+                data=csv_data,
+                file_name=f'{filename if filename else "score"}.csv',
+                mime="text/csv",
+            )
+
         except Exception as e:
             st.error("匯出失敗：", e)
 
