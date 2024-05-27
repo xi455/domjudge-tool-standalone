@@ -1,6 +1,7 @@
 import streamlit as st
 
-from domjudge_tool_cli.commands.submissions import submission_list, submission_file, contest_files
+# from domjudge_tool_cli.commands.submissions import submission_list, submission_file, contest_files
+from customization.submissions import submission_list, submission_file, contest_files
 
 from utils.check import login_required
 
@@ -61,41 +62,15 @@ def submissions_page():
     cid = submission_file_form.text_input(
         "Contest ID",
         key="submission_file_form_cid",
-        value=None,
+        value=21,
         placeholder="請輸入 Contest ID",
     )
 
     id = submission_file_form.text_input(
         "Submission ID",
         key="submission_file_form_id",
-        value=None,
+        value=24921,
         placeholder="請輸入 Submission ID",
-    )
-
-    mode = submission_file_form.number_input(
-        "Mode",
-        key="submission_file_form_mode",
-        value=2,
-        placeholder="請輸入 Mode",
-        help="""
-            Output path format mode:\n
-            mode=1: team_name/problem_name/submission_file.
-            mode=2: problem_name/team_name/submission_file.
-            other: contest_id/submission_file
-            """,
-    )
-
-    path = submission_file_form.text_input(
-        "Path",
-        key="submission_file_form_path",
-        value=None,
-        placeholder="請輸入 Path",
-    )
-
-    strict = submission_file_form.checkbox(
-        "Strict",
-        key="submission_file_form_strict",
-        value=False,
     )
 
     is_extract = submission_file_form.checkbox(
@@ -104,24 +79,35 @@ def submissions_page():
         value=True,
     )
 
-    st.markdown('### 匯出提交紀錄')
-    submission_file_submit = submission_file_form.form_submit_button("下載提交檔案")
+    submission_file_form_col1, submission_file_form_col2, submission_file_form_col3, submission_file_form_col4 = submission_file_form.columns([2, 2, 4, 4])
+    submission_file_submit = submission_file_form_col1.form_submit_button("匯出檔案")
 
     if submission_file_submit:
         try:
-            submission_file(
+            file_name, file_data = submission_file(
                 cid=cid,
                 id=id,
-                mode=mode,
-                path=path,
-                strict=strict,
-                is_extract=is_extract,
             )
-            st.success(f"下載提交檔案成功：{cid}")
+
+            if file_name:
+                st.download_button(
+                    label="下載提交紀錄",
+                    data=file_data,
+                    file_name=f'{file_name if file_name else "export_file"}.py',
+                    mime="text/x-python",
+                )
+            else:
+                st.download_button(
+                    label="下載提交紀錄",
+                    data=file_data,
+                    file_name=f'{file_name if file_name else "export_forder"}.zip',
+                    mime="application/zip",
+                )
 
         except Exception as e:
             st.error(f"下載提交檔案失敗：{cid}，{e}")
     
+    st.markdown('### 匯出提交紀錄')
     contest_files_form = st.form("contest_files_form")
 
     cid = contest_files_form.text_input(
