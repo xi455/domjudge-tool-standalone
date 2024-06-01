@@ -1,6 +1,11 @@
 from typing import Any, Dict, List, Optional
 
+import os
 import typer
+import shutil
+import aiofiles
+import aiofiles.os
+import asyncio
 from tablib import Dataset
 
 from domjudge_tool_cli.models import DomServerClient, Submission
@@ -117,12 +122,10 @@ async def download_contest_files(
     cid: str,
     mode: int,
     path_prefix: Optional[str] = None,
-    strict: Optional[bool] = False,
     is_extract: bool = True,
 ):
     judgement_mapping = await judgement_submission_mapping(client, cid)
-    typer.echo(f"Download contest files, cid: {cid}.")
-    async with SubmissionsAPI(**client.api_params) as api:
+    async with CustomSubmissionsAPI(**client.api_params) as api:
         submissions = await api.all_submissions(cid)
 
         async with TeamsAPI(**client.api_params) as team_api:
@@ -135,7 +138,7 @@ async def download_contest_files(
 
         async def get_source_codes(submission) -> None:
             id = submission.id
-
+            
             if (
                 submission.team_id not in teams_mapping
                 or submission.problem_id not in problems_mapping
@@ -147,18 +150,32 @@ async def download_contest_files(
             judgement_name = judgement_mapping.get(id)
 
             path = file_path(cid, mode, path_prefix, team, problem)
-            await api.submission_files(
+            
+            new_dir = os.path.join(temp_dir, path)
+            aiofiles.os.makedirs(new_dir, exist_ok=True)
+
+            filename, result = await api.submission_files(
                 cid,
                 id,
-                judgement_name,
-                path,
-                strict,
-                is_extract,
+                judgement_name,            
             )
 
-        count = 0
-        with typer.progressbar(submissions) as progress:
-            for task in progress:
-                count += 1
-                await get_source_codes(task)
-        typer.echo(f"Download {count} submissions.")
+            py_file_path = os.path.join(new_dir, filename)
+
+            async with aiofiles.open(f"{py_file_path}.py", "wb") as f:
+                await f.write(result)
+
+        # 創建一個臨時目錄
+        async with aiofiles.tempfile.TemporaryDirectory() as temp_dir:
+            # 在臨時目錄中創建一個新的目錄
+    
+            tasks = [get_source_codes(submission) for submission in submissions]
+            await asyncio.gather(*tasks)
+
+            # 將臨時目錄壓縮為zip文件
+            zip_file_path = shutil.make_archive(temp_dir, 'zip', temp_dir)
+
+            with open(zip_file_path, "rb") as f:
+                zip_file = f.read()
+
+        return zip_file

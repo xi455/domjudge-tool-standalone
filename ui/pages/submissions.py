@@ -79,8 +79,7 @@ def submissions_page():
         value=True,
     )
 
-    submission_file_form_col1, submission_file_form_col2, submission_file_form_col3, submission_file_form_col4 = submission_file_form.columns([2, 2, 4, 4])
-    submission_file_submit = submission_file_form_col1.form_submit_button("匯出檔案")
+    submission_file_submit = submission_file_form.form_submit_button("匯出檔案")
 
     if submission_file_submit:
         try:
@@ -113,7 +112,7 @@ def submissions_page():
     cid = contest_files_form.text_input(
         "Contest ID",
         key="contest_files_form_cid",
-        value=None,
+        value=21,
         placeholder="請輸入 Contest ID",
     )
 
@@ -133,14 +132,8 @@ def submissions_page():
     path = contest_files_form.text_input(
         "Path",
         key="contest_files_form_path",
-        value=None,
+        value="hello",
         placeholder="請輸入 Path",
-    )
-
-    strict = contest_files_form.checkbox(
-        "Strict",
-        key="contest_files_form_strict",
-        value=False,
     )
 
     is_extract = contest_files_form.checkbox(
@@ -153,13 +146,23 @@ def submissions_page():
 
     if contest_files_submit:
         try:
-            contest_files(
+            file_data = contest_files(
                 cid=cid,
                 mode=mode,
                 path=path,
-                strict=strict,
                 is_extract=is_extract,
             )
+
+            if file_data:
+                st.download_button(
+                    label="下載問題",
+                    data=file_data,
+                    file_name='export_forder.zip',
+                    mime="application/zip",
+                )
+            else:
+                st.error("輸入的題目 ID 有誤")
+
             st.success(f"下載提交檔案成功")
 
         except Exception as e:

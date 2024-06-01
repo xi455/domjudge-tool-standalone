@@ -60,7 +60,6 @@ def submission_file(
     )
 
 
-@app.command()
 def contest_files(
     cid: str,
     mode: int = typer.Argument(
@@ -73,7 +72,6 @@ def contest_files(
         """,
     ),
     path: Optional[str] = None,
-    strict: Optional[bool] = False,
     is_extract: bool = True,
 ):
     """
@@ -86,13 +84,12 @@ def contest_files(
         is_extract: unzip file if true.
     """
     client = get_or_ask_config(general_state["config"])
-    asyncio.run(
+    return asyncio.run(
         download_contest_files(
             client,
             cid,
             mode,
             path,
-            strict,
             is_extract,
         )
     )
