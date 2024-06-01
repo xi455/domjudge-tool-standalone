@@ -3,7 +3,11 @@ from typing import List, Optional
 
 import typer
 
+from domjudge_tool_cli.models import DomServerClient
 from domjudge_tool_cli.commands.general import general_state, get_or_ask_config
+
+from customization.serverices.web import DomServerWebGateway
+
 from ._submissions import (
     download_contest_files,
     download_submission_files,
@@ -93,3 +97,21 @@ def contest_files(
             is_extract,
         )
     )
+
+
+async def contests_options(
+    client: DomServerClient,
+) -> List[str]:
+    DomServerWeb = DomServerWebGateway(client.version)
+    
+    async with DomServerWeb(**client.api_params) as web:
+        await web.login()
+        contests = await web.get_contests()
+
+        return [contest.name for contest in contests]
+
+
+def get_content_options() -> List[str]:
+    client = get_or_ask_config(general_state["config"])
+
+    return asyncio.run(contests_options(client))

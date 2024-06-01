@@ -1,7 +1,7 @@
 import streamlit as st
 
 # from domjudge_tool_cli.commands.submissions import submission_list, submission_file, contest_files
-from customization.submissions import submission_list, submission_file, contest_files
+from customization.submissions import submission_list, submission_file, contest_files, get_content_options
 
 from utils.check import login_required
 
@@ -59,12 +59,16 @@ def submissions_page():
     st.markdown('### 匯出單一提交紀錄')
     submission_file_form = st.form("submission_file_form")
 
-    cid = submission_file_form.text_input(
-        "Contest ID",
-        key="submission_file_form_cid",
-        value=21,
-        placeholder="請輸入 Contest ID",
-    )
+    cid_option = submission_file_form.selectbox(
+        "請選擇考區",
+        get_content_options(),)
+
+    # cid = submission_file_form.text_input(
+    #     "Contest ID",
+    #     key="submission_file_form_cid",
+    #     value=21,
+    #     placeholder="請輸入 Contest ID",
+    # )
 
     id = submission_file_form.text_input(
         "Submission ID",
@@ -84,7 +88,7 @@ def submissions_page():
     if submission_file_submit:
         try:
             file_name, file_data = submission_file(
-                cid=cid,
+                cid=cid_option,
                 id=id,
             )
 
