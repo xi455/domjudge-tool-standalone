@@ -199,7 +199,6 @@ async def download_contest_files(
     cid: str,
     mode: int,
     path_prefix: Optional[str] = None,
-    is_extract: bool = True,
 ):
     judgement_mapping = await judgement_submission_mapping(client, cid)
     async with CustomSubmissionsAPI(**client.api_params) as api:
@@ -229,7 +228,7 @@ async def download_contest_files(
             path = file_path(cid, mode, path_prefix, team, problem)
             
             new_dir = os.path.join(temp_dir, path)
-            aiofiles.os.makedirs(new_dir, exist_ok=True)
+            os.makedirs(new_dir, exist_ok=True)
 
             filename, result = await api.submission_files(
                 cid,

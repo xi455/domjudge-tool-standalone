@@ -122,7 +122,6 @@ def submissions_page():
             st.error(f"下載提交檔案失敗：{cid}，{e}")
     
     st.markdown('### 匯出提交紀錄')
-    # contest_files_form = st.form("contest_files_form")
 
     contest_files_form_cid_option = st.selectbox(
         "請選擇考區",
@@ -150,13 +149,8 @@ def submissions_page():
         placeholder="請輸入 Path",
     )
 
-    contest_files_form_is_extract = st.checkbox(
-        "Is Extract",
-        key="contest_files_form_is_extract",
-        value=True,
-    )
-
-    contest_files_submit = st.button("下載提交檔案")
+    col1, col2, col3, col4 = st.columns([3, 3, 4, 4])
+    contest_files_submit = col1.button("匯出提交紀錄")
 
     if contest_files_submit:
         try:
@@ -165,12 +159,11 @@ def submissions_page():
                 cid=cid,
                 mode=contest_files_form_mode,
                 path=contest_files_form_path,
-                is_extract=contest_files_form_is_extract,
             )
 
             if file_data:
-                st.download_button(
-                    label="下載問題",
+                col2.download_button(
+                    label="下載壓縮檔",
                     data=file_data,
                     file_name='export_forder.zip',
                     mime="application/zip",
@@ -178,10 +171,10 @@ def submissions_page():
             else:
                 st.error("輸入的題目 ID 有誤")
 
-            st.success(f"下載提交檔案成功")
+            st.success(f"匯出提交紀錄成功")
 
         except Exception as e:
-            st.error(f"下載提交檔案失敗：{e}")
+            st.error(f"匯出提交紀錄失敗：{e}")
 
 if __name__ == "__main__":
     st.session_state["content_option"] = get_content_options()

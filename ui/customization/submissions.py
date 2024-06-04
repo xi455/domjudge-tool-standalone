@@ -73,7 +73,6 @@ def contest_files(
         """,
     ),
     path: Optional[str] = None,
-    is_extract: bool = True,
 ):
     """
     Download a contest all submissions source code files.
@@ -91,7 +90,6 @@ def contest_files(
             cid,
             mode,
             path,
-            is_extract,
         )
     )
 
