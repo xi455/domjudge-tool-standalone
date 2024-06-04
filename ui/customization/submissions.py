@@ -1,5 +1,5 @@
 import asyncio
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import typer
 
@@ -12,6 +12,7 @@ from ._submissions import (
     download_contest_files,
     download_submission_files,
     get_submissions,
+    download_submission_zip,
 )
 
 app = typer.Typer()
@@ -42,7 +43,8 @@ def submission_list(
 
 def submission_file(
     cid: str,
-    id: str,
+    submission_ids: Optional[List[str]],
+    strict: Optional[bool] = False,
 ):
     """
     Download a submission source code files.
@@ -55,13 +57,8 @@ def submission_file(
         is_extract: unzip file if true.
     """
     client = get_or_ask_config(general_state["config"])
-    return asyncio.run(
-        download_submission_files(
-            client,
-            cid,
-            id,
-        )
-    )
+
+    return asyncio.run(download_submission_zip(client, cid, submission_ids))
 
 
 def contest_files(
@@ -101,17 +98,17 @@ def contest_files(
 
 async def contests_options(
     client: DomServerClient,
-) -> List[str]:
+) -> Dict[str, object]:
     DomServerWeb = DomServerWebGateway(client.version)
     
     async with DomServerWeb(**client.api_params) as web:
         await web.login()
         contests = await web.get_contests()
 
-        return [contest.name for contest in contests]
+        return {contest.name: contest for contest in contests}
 
 
-def get_content_options() -> List[str]:
+def get_content_options() -> Dict[str, object]:
     client = get_or_ask_config(general_state["config"])
 
     return asyncio.run(contests_options(client))
