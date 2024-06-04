@@ -2,7 +2,7 @@ import asyncio
 import streamlit as st
 
 # from domjudge_tool_cli.commands.submissions import submission_list, submission_file, contest_files
-from customization.submissions import submission_list, submission_file, contest_files, get_content_options
+from customization.submissions import submission_list, submission_file, get_content_options, contest_files
 from domjudge_tool_cli.commands.general import general_state, get_or_ask_config
 from customization._submissions import get_submissions, judgement_submission_mapping
 
@@ -84,17 +84,24 @@ def submissions_page():
     "選擇提交紀錄",
     st.session_state["subissions_record"],)
 
+    submission_file_form_mode = st.number_input(
+        "Mode",
+        key="submission_file_form_mode",
+        value=2,
+        placeholder="請輸入 Mode",
+        help="""
+            Output path format mode:\n
+            mode=1: team_name/problem_name/submission_file.
+            mode=2: problem_name/team_name/submission_file.
+            other: contest_id/submission_file
+            """,
+    )
+
     zip_filename = st.text_input(
         "ZIP 檔案名稱",
         key="submission_file_form_zip_filename",
         value=None,
         placeholder="請輸入 ZIP 檔案名稱",
-    )
-
-    submission_file_form_is_extract = st.checkbox(
-        "Is Extract",
-        key="submission_file_form_is_extract",
-        value=False,
     )
 
     col1, col2, col3, col4 = st.columns([2, 3, 3, 4])
@@ -107,7 +114,7 @@ def submissions_page():
             file_data = submission_file(
                 cid=st.session_state["content_option"][submission_file_form_cid_option].CID,
                 submission_ids=ids,
-                strict=submission_file_form_is_extract,
+                mode=submission_file_form_mode,
             )
 
             if file_data:

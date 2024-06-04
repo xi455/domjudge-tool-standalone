@@ -9,6 +9,7 @@ class CustomSubmissionsAPI(SubmissionsAPI):
     ) -> str:
 
         path = self.make_resource(f"/contests/{cid}/submissions/{id}/files")
+        file_name = f"{filename}_{id}.zip"
         result = await self.get_file(path)
 
-        return filename, result
+        return file_name, result

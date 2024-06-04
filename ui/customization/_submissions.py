@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Optional
 import os
 import typer
 import shutil
+import zipfile
 import aiofiles
 import aiofiles.os
 import asyncio
@@ -131,45 +132,76 @@ async def download_submission_files(
     judgement_mapping = await judgement_submission_mapping(client, cid)
     async with CustomSubmissionsAPI(**client.api_params) as api:
 
-        async with TeamsAPI(**client.api_params) as team_api:
-            teams = await team_api.all_teams(cid)
-            teams_mapping = index_by_id(teams)
-
-            # '1954': Team(group_ids=['48'], affiliation='112校外讀', nationality='TWN', id='1954', icpc_id=None, name='202309056', display_name='吳柏郁', organization_id='298', members=None)
-
-        async with ProblemsAPI(**client.api_params) as problem_api:
-            problems = await problem_api.all_problems(cid)
-            problems_mapping = index_by_id(problems)
-
-            # '652': Problem(ordinal=7, id='652', short_name='U511_232_10970---Big-Chocolate', label='U511_232_10970---Big-Chocolate', time_limit=1, externalid='U511_232_10970---Big-Chocolate', name='10970 - Big Chocolate', rgb=None, color=None, test_data_count=6), 
-
-        submission = await api.submission(cid, id)
+        print(cid, id)
         submission_file = await api.submission_file_name(cid, id)
-
-        team = teams_mapping[submission.team_id]
-        problem = problems_mapping[submission.problem_id]
-
         submission_filename = submission_file.filename.split(".")[0]
+
         judgement_name = judgement_mapping.get(id)
 
-        submission_filename = f"{team.display_name}_{problem.short_name}_{submission_filename}_{judgement_name}"
-
+        submission_filename = f"{submission_filename}_{judgement_name}"
+        
         return await api.submission_files(
             cid,
             id,
             submission_filename,
         )
     
+async def get_submission_dirs(
+    client: DomServerClient,
+    cid: str,
+    submission_ids: List[str],
+    mode: int,
+):
+    """Get the file paths for the submissions.
+
+    Args:
+        client (DomServerClient): The DomServerClient object.
+        cid (str): The contest ID.
+        submission_ids (List[str]): The list of submission IDs.
+        mode (int): The mode.
+
+    Returns:
+        List[str]: The list of file paths for the submissions.
+    """
+    async with CustomSubmissionsAPI(**client.api_params) as api:
+
+        paths = list()
+        for id in submission_ids:
+            submission = await api.submission(cid, id)
+
+            async with TeamsAPI(**client.api_params) as team_api:
+                team = await team_api.team(cid, submission.team_id)
+
+            async with ProblemsAPI(**client.api_params) as problem_api:
+                problem = await problem_api.problem(cid, submission.problem_id)
+        
+            paths.append(file_path(cid, mode, team, problem))
+
+    return paths
+
 
 async def download_submission_zip(
     client: DomServerClient,
     cid: str,
     submission_ids: List[str],
+    mode: int,
 ):
     # 創建一個臨時目錄
     async with aiofiles.tempfile.TemporaryDirectory() as temp_dir:
         # 在臨時目錄中創建一個新的目錄
-        
+
+        paths = await get_submission_dirs(
+            client=client,
+            cid=cid,
+            submission_ids=submission_ids,
+            mode=mode,
+        )
+
+        # 創建新的目錄
+        for index in range(len(paths)):
+            paths[index] = os.path.join(temp_dir, paths[index])
+            os.makedirs(paths[index], exist_ok=True)
+
         submissions_list = [download_submission_files(
             client=client,
             cid=cid,
@@ -177,11 +209,17 @@ async def download_submission_zip(
         ) for id in submission_ids]
         results = await asyncio.gather(*submissions_list)
 
-        for result in results:
+        for path, result in zip(paths, results):
             filename, submission = result
-            py_file_path = os.path.join(temp_dir, filename)
-            async with aiofiles.open(f"{py_file_path}.py", "wb") as f:
+            zip_path = os.path.join(path, filename)    
+            async with aiofiles.open(zip_path, "wb") as f:
                 await f.write(submission)
+
+            # 解壓縮文件
+            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                zip_ref.extractall(path)
+
+            os.remove(zip_path)
 
         zip_file_path = shutil.make_archive(temp_dir, 'zip', temp_dir)
 
@@ -226,16 +264,21 @@ async def download_contest_files(
             new_dir = os.path.join(temp_dir, path)
             os.makedirs(new_dir, exist_ok=True)
 
-            filename, result = await api.submission_files(
+            file_name, result = await api.submission_files(
                 cid,
                 id,
                 judgement_name,            
             )
 
-            py_file_path = os.path.join(new_dir, filename)
-
-            async with aiofiles.open(f"{py_file_path}.py", "wb") as f:
+            zip_path = os.path.join(new_dir, file_name)
+            async with aiofiles.open(zip_path, "wb") as f:
                 await f.write(result)
+
+            # 解壓縮文件
+            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                zip_ref.extractall(new_dir)
+
+            os.remove(zip_path)
 
         # 創建一個臨時目錄
         async with aiofiles.tempfile.TemporaryDirectory() as temp_dir:

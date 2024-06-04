@@ -44,7 +44,15 @@ def submission_list(
 def submission_file(
     cid: str,
     submission_ids: Optional[List[str]],
-    strict: Optional[bool] = False,
+    mode: int = typer.Argument(
+        default=2,
+        help="""
+            Output path format mode:\n
+            mode=1: team_name/problem_name/submission_file.
+            mode=2: problem_name/team_name/submission_file.
+            other: contest_id/submission_file
+            """,
+    ),
 ):
     """
     Download a submission source code files.
@@ -58,7 +66,7 @@ def submission_file(
     """
     client = get_or_ask_config(general_state["config"])
 
-    return asyncio.run(download_submission_zip(client, cid, submission_ids))
+    return asyncio.run(download_submission_zip(client, cid, submission_ids, mode))
 
 
 def contest_files(
