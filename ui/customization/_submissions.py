@@ -50,16 +50,13 @@ def index_by_id(objs):
     return data
 
 
-def file_path(cid, mode, path, team, problem):
+def file_path(cid, mode, team, problem):
     if mode == 1:
         filepath = f"team_{team.name}/problem_{problem.short_name}"
     elif mode == 2:
         filepath = f"problem_{problem.short_name}/team_{team.name}"
     else:
         filepath = f"contest_{cid}"
-
-    if path:
-        filepath = f"{path}/{filepath}"
 
     return filepath
 
@@ -198,7 +195,6 @@ async def download_contest_files(
     client: DomServerClient,
     cid: str,
     mode: int,
-    path_prefix: Optional[str] = None,
 ):
     judgement_mapping = await judgement_submission_mapping(client, cid)
     async with CustomSubmissionsAPI(**client.api_params) as api:
@@ -225,7 +221,7 @@ async def download_contest_files(
             problem = problems_mapping[submission.problem_id]
             judgement_name = judgement_mapping.get(id)
 
-            path = file_path(cid, mode, path_prefix, team, problem)
+            path = file_path(cid, mode, team, problem)
             
             new_dir = os.path.join(temp_dir, path)
             os.makedirs(new_dir, exist_ok=True)

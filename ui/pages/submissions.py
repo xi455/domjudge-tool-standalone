@@ -86,7 +86,7 @@ def submissions_page():
 
     zip_filename = st.text_input(
         "ZIP 檔案名稱",
-        key="zip_filename",
+        key="submission_file_form_zip_filename",
         value=None,
         placeholder="請輸入 ZIP 檔案名稱",
     )
@@ -142,11 +142,11 @@ def submissions_page():
             """,
     )
 
-    contest_files_form_path = st.text_input(
-        "Path",
-        key="contest_files_form_path",
-        value="hello",
-        placeholder="請輸入 Path",
+    zip_filename = st.text_input(
+        "ZIP 檔案名稱",
+        key="contest_files_form_zip_filename",
+        value=None,
+        placeholder="請輸入 ZIP 檔案名稱",
     )
 
     col1, col2, col3, col4 = st.columns([3, 3, 4, 4])
@@ -158,14 +158,13 @@ def submissions_page():
             file_data = contest_files(
                 cid=cid,
                 mode=contest_files_form_mode,
-                path=contest_files_form_path,
             )
 
             if file_data:
                 col2.download_button(
                     label="下載壓縮檔",
                     data=file_data,
-                    file_name='export_forder.zip',
+                    file_name=f'{zip_filename if zip_filename else "export_forder"}.zip',
                     mime="application/zip",
                 )
             else:

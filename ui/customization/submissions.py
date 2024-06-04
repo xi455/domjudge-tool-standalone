@@ -72,7 +72,6 @@ def contest_files(
         other: contest_id/submission_file
         """,
     ),
-    path: Optional[str] = None,
 ):
     """
     Download a contest all submissions source code files.
@@ -89,7 +88,6 @@ def contest_files(
             client,
             cid,
             mode,
-            path,
         )
     )
 
