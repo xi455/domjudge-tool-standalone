@@ -24,13 +24,13 @@ st.title("DOMjudge 題目管理工具")
 content = """
 目前處在開發階段，尚未提供任意功能。\n
 當前支援的功能有：\n
-- 暫無功能\n
+- 題目匯出功能 (problems)\n
+- 成績版功能 (scoreboard)\n
+- 提交紀錄匯出功能 (submissions)\n
+- 查看紀錄功能 (viewsubmission)\n
 待開發支援的功能有：\n
 - 創建帳號功能 (emails)\n
 - 考區設定功能 (general)\n
-- 題目管理功能 (problems)\n
-- 成績版功能 (scoreboard)\n
-- 呈件功能 (submissions)\n
 """
 
 st.write(content)

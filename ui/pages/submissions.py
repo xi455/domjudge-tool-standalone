@@ -9,7 +9,8 @@ from customization._submissions import get_submissions, judgement_submission_map
 from utils.check import login_required
 
 
-def get_submission_record(contest_name):
+@login_required
+def get_submissions_record(contest_name):
     """
     Get submission record.
     """
@@ -24,51 +25,6 @@ def submissions_page():
     st.sidebar.header("管理提交紀錄")
     st.title("管理提交紀錄")
 
-    st.markdown('### 列出單一提交紀錄')
-    submission_list_form = st.form("submission_list_form")
-
-    cid = submission_list_form.text_input(
-        "Contest ID",
-        key="submission_list_form_cid",
-        value=None,
-        placeholder="請輸入 Contest ID",
-    )
-
-    language_id = submission_list_form.text_input(
-        "Language ID",
-        key="submission_list_form_language_id",
-        value=None,
-        placeholder="請輸入 Language ID",
-    )
-
-    strict = submission_list_form.checkbox(
-        "Strict",
-        key="submission_list_form_strict",
-        value=False,
-    )
-
-    ids = submission_list_form.text_input(
-        "Submission IDs",
-        key="submission_list_form_ids",
-        value=None,
-        placeholder="請輸入 Submission IDs",
-    )
-
-    submission_list_submit = submission_list_form.form_submit_button("列出提交紀錄")
-
-    if submission_list_submit:
-        try:
-            submission_list(
-                cid=cid,
-                language_id=language_id,
-                strict=strict,
-                ids=ids,
-            )
-            st.success(f"列出提交紀錄成功：{cid}")
-
-        except Exception as e:
-            st.error(f"列出提交紀錄失敗：{cid}，{e}")
-    
     st.markdown('### 匯出單一提交紀錄')
     submission_file_form_cid_option = st.selectbox(
         "請選擇考區",
@@ -78,7 +34,7 @@ def submissions_page():
 
     if submission_file_form_cid_option:
         contest_name = submission_file_form_cid_option
-        get_submission_record(contest_name)
+        get_submissions_record(contest_name)
 
     submission_file_form_ids_options = st.multiselect(
     "選擇提交紀錄",

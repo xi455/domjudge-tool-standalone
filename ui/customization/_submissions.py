@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Optional
 import os
 import typer
 import shutil
+import base64
 import zipfile
 import aiofiles
 import aiofiles.os
@@ -84,9 +85,10 @@ async def judgement_submission_mapping(
 async def get_submissions(
     client: DomServerClient,
     cid: str,
+    language_id: Optional[str] = None,
 ) -> Dict[str, object]:
     async with CustomSubmissionsAPI(**client.api_params) as api:
-        submissions = await api.all_submissions(cid)
+        submissions = await api.all_submissions(cid, language_id=language_id)
 
         # Submission(language_id='python3', time='2023-11-20T14:10:05.726+08:00', contest_time='498:35:05.726', id='42389', externalid=None, team_id='1945', problem_id='628', entry_point='', files=[{'href': 'contests/108/submissions/42389/files', 'mime': 'application/zip'}], submission_id=None, filename=None, source=None)
 
@@ -123,6 +125,26 @@ async def get_submissions(
                 data.update(task)
 
         return data
+    
+async def get_submission_source_code(
+    client: DomServerClient,
+    cid: str,
+    id: str,
+):
+    async with CustomSubmissionsAPI(**client.api_params) as api:
+        submissionfile = await api.submission_file_name(
+            cid,
+            id,
+        )
+
+        encoded_str = submissionfile.source
+        encoded_str = encoded_str.replace("\n", "")
+
+        # 解碼Base64
+        decoded_bytes = base64.b64decode(encoded_str)
+        decoded_str = decoded_bytes.decode('utf-8')
+
+        return decoded_str
 
 async def download_submission_files(
     client: DomServerClient,
@@ -132,7 +154,6 @@ async def download_submission_files(
     judgement_mapping = await judgement_submission_mapping(client, cid)
     async with CustomSubmissionsAPI(**client.api_params) as api:
 
-        print(cid, id)
         submission_file = await api.submission_file_name(cid, id)
         submission_filename = submission_file.filename.split(".")[0]
 

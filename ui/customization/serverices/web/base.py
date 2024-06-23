@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from domjudge_tool_cli.models import Affiliation, CreateUser, ProblemItem, User
 from domjudge_tool_cli.services.api_client import WebClient
 
-from customization.models import ContestItem
+from customization.models import Contest, Language
 
 def _get_input_fields(page: str) -> dict:
     soup = BeautifulSoup(page, "html.parser")
@@ -113,5 +113,11 @@ class CustomBaseDomServerWeb(WebClient, ABC):
     @abstractmethod
     async def get_contests(
         self,
-    ) -> List[ContestItem]:
+    ) -> List[Contest]:
+        raise NotImplemented
+    
+    @abstractmethod
+    async def get_languages(
+        self,
+    ) -> List[Language]:
         raise NotImplemented

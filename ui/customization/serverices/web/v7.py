@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from domjudge_tool_cli.models import Affiliation, CreateUser, ProblemItem, User
 
 from customization.serverices.web.base import CustomBaseDomServerWeb, _get_input_fields
-from customization.models import ContestItem
+from customization.models import Contest, Language
 
 class HomePath(str, Enum):
     JURY = "/jury"
@@ -38,6 +38,10 @@ class ProblemPath(str, Enum):
 class ContestPath(str, Enum):
     LIST = "/jury/contests"
     ADD = "/jury/contests/add"
+
+
+class LanguagePath(str, Enum):
+    LIST = "/jury/languages"
 
 
 class DomServerWeb(CustomBaseDomServerWeb):
@@ -297,7 +301,7 @@ class DomServerWeb(CustomBaseDomServerWeb):
 
         return objs
 
-    async def get_contests(self) -> List[ContestItem]:
+    async def get_contests(self) -> List[Contest]:
         res = await self.get(ContestPath.LIST)
         res.raise_for_status()
 
@@ -332,8 +336,54 @@ class DomServerWeb(CustomBaseDomServerWeb):
                 td = td_elements[index].text.strip()
                 contest_info_dict[thead] = td
 
-            obj = ContestItem(**contest_info_dict)
+            obj = Contest(**contest_info_dict)
 
             objs.append(obj)
+
+        return objs
+    
+    async def get_languages(self) -> List[Language]:
+        res = await self.get(LanguagePath.LIST)
+        res.raise_for_status()
+
+        soup = BeautifulSoup(res.text, "html.parser")
+
+        objs = []
+
+        table_elements = soup.select(
+            "table",
+            {
+                "class": "data-table table table-sm table-striped dataTable no-footer",
+                "id": "DataTables_Table_0",
+            },
+        )
+
+        tr_elements = table_elements[-1].select("tbody tr")
+
+        for tr_element in tr_elements:
+
+            td_elements = tr_element.select("td")
+            language_info_dict = dict()
+            
+            obj_title = ["LID", "externalID", "name", "entrypoint", "allowsubmit", "allowjudge", "timefactor", "extensions"]        
+            for index in range(len(obj_title)):
+
+                td = td_elements[index].text.strip()
+
+                if obj_title[index] == "entrypoint" or obj_title[index] == "allowsubmit" or obj_title[index] == "allowjudge":
+                    td = True if td == "yes" else False
+
+                if obj_title[index] == "timefactor":
+                    td = int(td)
+
+                language_info_dict[obj_title[index]] = td
+
+            obj = Language(**language_info_dict)
+
+            if obj.allowsubmit:
+                objs.append(obj)
+
+        all_language = Language(name="All")
+        objs.insert(0, all_language)
 
         return objs

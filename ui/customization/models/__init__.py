@@ -1,5 +1,7 @@
-from .contest import ContestItem
+from .contest import Contest
+from .language import Language
 
 __all__ = (
-    "ContestItem",
+    "Contest",
+    "Language",
 )
