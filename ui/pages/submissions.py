@@ -19,6 +19,17 @@ def get_submissions_record(contest_name):
     st.session_state["subissions_record"] = asyncio.run(get_submissions(client, cid))
 
 
+def check_mode_value(selected_mode):
+    if selected_mode == "選擇一：team_name/problem_name/submission_file":
+        return 1
+    
+    if selected_mode == "選擇二：problem_name/team_name/submission_file":
+        return 2
+    
+    if selected_mode == "選擇三：contest_id/submission_file":
+        return 3
+
+
 # @login_required
 def submissions_page():
     st.set_page_config(page_title="管理提交紀錄頁面", page_icon="📄")
@@ -40,17 +51,14 @@ def submissions_page():
     "選擇提交紀錄",
     st.session_state["subissions_record"],)
 
-    submission_file_form_mode = st.number_input(
-        "Mode",
+    submission_file_form_mode = st.selectbox(
+        "輸出路徑樣式選擇",
+        options=[
+            "選擇一：team_name/problem_name/submission_file",
+            "選擇二：problem_name/team_name/submission_file",
+            "選擇三：contest_id/submission_file",
+        ],
         key="submission_file_form_mode",
-        value=2,
-        placeholder="請輸入 Mode",
-        help="""
-            Output path format mode:\n
-            mode=1: team_name/problem_name/submission_file.
-            mode=2: problem_name/team_name/submission_file.
-            other: contest_id/submission_file
-            """,
     )
 
     zip_filename = st.text_input(
@@ -66,11 +74,12 @@ def submissions_page():
     if submission_file_submit:
         try:
             ids = [st.session_state["subissions_record"][i].id for i in submission_file_form_ids_options]
-            
+            mode = check_mode_value(submission_file_form_mode)
+
             file_data = submission_file(
                 cid=st.session_state["content_option"][submission_file_form_cid_option].CID,
                 submission_ids=ids,
-                mode=submission_file_form_mode,
+                mode=mode,
             )
 
             if file_data:
@@ -92,17 +101,14 @@ def submissions_page():
         key="contest_files_form_cid_option",
     )
 
-    contest_files_form_mode = st.number_input(
-        "Mode",
+    contest_files_form_mode = st.selectbox(
+        "輸出路徑樣式選擇",
+        options=[
+            "選擇一：team_name/problem_name/submission_file",
+            "選擇二：problem_name/team_name/submission_file",
+            "選擇三：contest_id/submission_file",
+        ],
         key="contest_files_form_mode",
-        value=2,
-        placeholder="請輸入 Mode",
-        help="""
-            Output path format mode:\n
-            mode=1: team_name/problem_name/submission_file.
-            mode=2: problem_name/team_name/submission_file.
-            other: contest_id/submission_file
-            """,
     )
 
     zip_filename = st.text_input(
@@ -118,9 +124,10 @@ def submissions_page():
     if contest_files_submit:
         try:
             cid = st.session_state["content_option"][contest_files_form_cid_option].CID
+            mode = check_mode_value(contest_files_form_mode)
             file_data = contest_files(
                 cid=cid,
-                mode=contest_files_form_mode,
+                mode=mode,
             )
 
             if file_data:

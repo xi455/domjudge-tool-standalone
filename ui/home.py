@@ -103,7 +103,7 @@ max_keepalive_connections = login_form.number_input(
     placeholder="請輸入 Max Keepalive Connections 數量",
 )
 
-submit = login_form.form_submit_button("登入")
+submit = login_form.form_submit_button("設定與登入")
 
 if submit:
     owner_info = general.config(

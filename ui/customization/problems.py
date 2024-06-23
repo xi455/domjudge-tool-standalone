@@ -6,10 +6,12 @@ import zipfile
 from typing import List, Optional
 
 from domjudge_tool_cli.commands.general import general_state, get_or_ask_config
-from domjudge_tool_cli.commands.problems._problems import download_problems_zips
+# from domjudge_tool_cli.commands.problems._problems import download_problems_zips
 
 from domjudge_tool_cli.models import DomServerClient
 from domjudge_tool_cli.services.web import DomServerWebGateway
+
+from ._problems import problems_info
 
 async def download_problems_zips(
     client: DomServerClient,
@@ -56,3 +58,9 @@ def download_problems(
 
     client = get_or_ask_config(general_state["config"])
     return asyncio.run(download_problems_zips(client, exclude, only, folder))
+
+
+def get_problems_info():
+    client = get_or_ask_config(general_state["config"])
+
+    return asyncio.run(problems_info(client))

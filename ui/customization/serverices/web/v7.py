@@ -275,7 +275,7 @@ class DomServerWeb(CustomBaseDomServerWeb):
         res.raise_for_status()
 
         soup = BeautifulSoup(res.text, "html.parser")
-        objs = []
+        objs = list()
 
         for row in soup.select("table tbody tr"):
             problem_id = row.select("td a")[0].text.strip()
@@ -284,7 +284,7 @@ class DomServerWeb(CustomBaseDomServerWeb):
             test_data_count = row.select("td a")[6].text.strip()
             export_file_path = str(row.select("td a")[7]["href"]).strip()
 
-            if only and problem_id not in only:
+            if problem_id not in only:
                 continue
 
             if problem_id in exclude:

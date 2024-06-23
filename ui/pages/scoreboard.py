@@ -5,6 +5,7 @@ from domjudge_tool_cli.commands.general import get_or_ask_config
 
 from utils.check import login_required
 from customization.scoreboard import export
+from customization.submissions import get_content_options
 
 @login_required
 def scoreboard_page():
@@ -12,15 +13,10 @@ def scoreboard_page():
     st.sidebar.header("匯出分數")
     st.title("匯出分數")
 
-    domserver = None
-    if os.path.exists("domserver.json"):
-        domserver = get_or_ask_config()
-        
-    cid = st.number_input(
-        "Contest ID",
-        key="cid",
-        value=None,
-        placeholder="請輸入 cid",
+    contest_name = st.selectbox(
+        "請選擇考區",
+        options=st.session_state["content_option"],
+        key="contest_files_form_cid_option",
     )
 
     filename = st.text_input(
@@ -30,19 +26,14 @@ def scoreboard_page():
         placeholder="請輸入檔案名稱",
     )
 
-    url = st.text_input(
-        "網址連結",
-        key="url",
-        value= domserver.host if domserver and domserver.host else "http://127.0.0.1:8000/",
-        placeholder="請輸入網址連結",
-    )
-
     col1, col2, col3, col4 = st.columns([2, 2, 4, 4])
     export_button = col1.button("匯出分數")
 
     if export_button:
         try:
-            csv_data = export(cid, url)
+            cid = st.session_state["content_option"][contest_name].CID
+
+            csv_data = export(cid)
             col2.download_button(
                 label="下載檔案",
                 data=csv_data,
@@ -54,4 +45,5 @@ def scoreboard_page():
             st.error("匯出失敗：", e)
 
 if __name__ == "__main__":
+    st.session_state["content_option"] = get_content_options()
     scoreboard_page()
