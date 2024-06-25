@@ -29,8 +29,6 @@ content = """
 - 成績版功能 (scoreboard)\n
 - 提交紀錄匯出功能 (submissions)\n
 - 查看紀錄功能 (viewsubmission)\n
-待開發支援的功能有：\n
-- 考區設定功能 (general)\n
 """
 
 st.write(content)
