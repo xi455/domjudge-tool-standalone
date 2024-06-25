@@ -10,7 +10,6 @@ from customization.serverices.web import DomServerWebGateway
 
 from ._submissions import (
     download_contest_files,
-    download_submission_files,
     get_submissions,
     download_submission_zip,
     get_submission_source_code,

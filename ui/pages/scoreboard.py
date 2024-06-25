@@ -1,11 +1,9 @@
-import os
 import streamlit as st
-
-from domjudge_tool_cli.commands.general import get_or_ask_config
 
 from utils.check import login_required
 from customization.scoreboard import export
 from customization.submissions import get_content_options
+
 
 @login_required
 def scoreboard_page():

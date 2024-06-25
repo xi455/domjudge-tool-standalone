@@ -5,6 +5,7 @@ from customization.emails import send_user_accounts
 
 from utils.check import login_required
 
+
 st.set_page_config(page_title="寄送帳號頁面", page_icon="📄")
 
 @st.cache_data

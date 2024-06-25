@@ -15,14 +15,10 @@ from domjudge_tool_cli.services.api.v4 import (
     JudgementAPI,
     JudgementTypeAPI,
     ProblemsAPI,
-    SubmissionsAPI,
     TeamsAPI,
-    UsersAPI,
 )
 
 from customization.serverices.api.v4 import CustomSubmissionsAPI
-
-from itertools import chain
 
 
 def gen_submission_dataset(submissions: List[Any]) -> Dataset:
@@ -90,19 +86,16 @@ async def get_submissions(
     async with CustomSubmissionsAPI(**client.api_params) as api:
         submissions = await api.all_submissions(cid, language_id=language_id)
 
-        # Submission(language_id='python3', time='2023-11-20T14:10:05.726+08:00', contest_time='498:35:05.726', id='42389', externalid=None, team_id='1945', problem_id='628', entry_point='', files=[{'href': 'contests/108/submissions/42389/files', 'mime': 'application/zip'}], submission_id=None, filename=None, source=None)
 
         async with TeamsAPI(**client.api_params) as team_api:
             teams = await team_api.all_teams(cid)
             teams_mapping = index_by_id(teams)
 
-            # '1954': Team(group_ids=['48'], affiliation='112校外讀', nationality='TWN', id='1954', icpc_id=None, name='202309056', display_name='吳柏郁', organization_id='298', members=None)
 
         async with ProblemsAPI(**client.api_params) as problem_api:
             problems = await problem_api.all_problems(cid)
             problems_mapping = index_by_id(problems)
 
-            # '652': Problem(ordinal=7, id='652', short_name='U511_232_10970---Big-Chocolate', label='U511_232_10970---Big-Chocolate', time_limit=1, externalid='U511_232_10970---Big-Chocolate', name='10970 - Big Chocolate', rgb=None, color=None, test_data_count=6), 
 
         async def get_team_problem_option(submission) -> Dict[str, object]:
             

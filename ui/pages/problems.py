@@ -7,6 +7,7 @@ from utils.check import login_required
 
 from customization.problems import get_problems_info
 
+
 st.set_page_config(page_title="題目管理頁面", page_icon="📄")
 
 def handle_table_pagination():

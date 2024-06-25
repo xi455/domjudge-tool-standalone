@@ -6,7 +6,6 @@ import zipfile
 from typing import List, Optional
 
 from domjudge_tool_cli.commands.general import general_state, get_or_ask_config
-# from domjudge_tool_cli.commands.problems._problems import download_problems_zips
 
 from domjudge_tool_cli.models import DomServerClient
 from domjudge_tool_cli.services.web import DomServerWebGateway
@@ -37,6 +36,7 @@ async def download_problems_zips(
                     export_file_path = problem.export_file_path
                     disk_file_path = f"{folder}.zip"
                     disk_file_path = os.path.join(folder, f"{problem.id}.zip")
+                    
                     if not export_file_path:
                         continue
 

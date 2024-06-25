@@ -4,8 +4,6 @@ import os
 
 import streamlit as st
 from domjudge_tool_cli.commands import general
-from domjudge_tool_cli.services.web import DomServerWebGateway
-from domjudge_tool_cli.commands.general._check import read_config, check_login_website
 from domjudge_tool_cli.commands.general import get_or_ask_config
 
 st.set_page_config(
@@ -22,7 +20,6 @@ st.sidebar.header("首頁")
 st.title("DOMjudge 題目管理工具")
 
 content = """
-目前處在開發階段，尚未提供任意功能。\n
 當前支援的功能有：\n
 - 寄送帳號功能 (emails)\n
 - 題目匯出功能 (problems)\n

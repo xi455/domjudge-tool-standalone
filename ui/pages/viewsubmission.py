@@ -1,10 +1,10 @@
 import asyncio
 import streamlit as st
 
-# from domjudge_tool_cli.commands.submissions import submission_list, submission_file, contest_files
-from customization.submissions import submission_list, submission_file, get_content_options, get_language_options, contest_files, view_submission
+from customization._submissions import get_submissions
+from customization.submissions import get_content_options, get_language_options, view_submission
+
 from domjudge_tool_cli.commands.general import general_state, get_or_ask_config
-from customization._submissions import get_submissions, judgement_submission_mapping
 
 from utils.check import login_required
 
@@ -23,7 +23,7 @@ def get_submissions_record(contest_name, language_name=None):
     st.session_state["submissions"] = asyncio.run(get_submissions(client, cid, lid))
 
 
-# @login_required
+@login_required
 def submissions_page():
     st.set_page_config(page_title="管理提交紀錄頁面", page_icon="📄")
     st.sidebar.header("管理提交紀錄")
