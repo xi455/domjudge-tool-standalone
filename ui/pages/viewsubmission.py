@@ -1,4 +1,5 @@
 import streamlit as st
+from pydantic import ValidationError
 
 from customization.submissions import get_content_options, get_language_options, view_submission
 
@@ -7,7 +8,10 @@ from utils.submissions import get_submissions_record
 
 
 @login_required
-def submissions_page(content_option_dict, language_option_dict):
+def submissions_page():
+    content_option_dict = get_content_options()
+    language_option_dict = get_language_options()
+
     st.set_page_config(page_title="管理提交紀錄頁面", page_icon="📄")
     st.sidebar.header("管理提交紀錄")
     st.title("管理提交紀錄")
@@ -22,7 +26,12 @@ def submissions_page(content_option_dict, language_option_dict):
 
     if contest_option:
         contest_name = contest_option
-        subissions_record_dict = get_submissions_record(content_option_dict, contest_name)
+
+        try:
+            subissions_record_dict = get_submissions_record(content_option_dict, contest_name)
+
+        except ValidationError as e:
+            st.error(f"無法取得提交紀錄，請檢查 網址連結 SSL 是否設定正確")
 
     language_option = st.selectbox(
         "選擇語言",
@@ -32,14 +41,23 @@ def submissions_page(content_option_dict, language_option_dict):
 
     if language_option != "All":
         language_name = language_option
-        subissions_record_dict = get_submissions_record(content_option_dict, contest_name, language_option_dict, language_name)
 
-    submission_id_option = st.selectbox(
-        "選擇提交紀錄",
-        subissions_record_dict,
-    )
+        try:
+            subissions_record_dict = get_submissions_record(content_option_dict, contest_name, language_option_dict, language_name)
 
-    submission_submit = st.button("列出提交紀錄")
+        except ValidationError as e:
+            st.error(f"無法取得提交紀錄，請檢查 url SSL 是否設定正確")
+
+    if "subissions_record_dict" in locals():
+        submission_id_option = st.selectbox(
+            "選擇提交紀錄",
+            subissions_record_dict,
+        )
+
+        submission_submit = st.button("列出提交紀錄")
+    
+    else:
+        submission_submit = st.button("列出提交紀錄", disabled=True)
 
     if submission_submit:
         try:
@@ -63,6 +81,5 @@ def submissions_page(content_option_dict, language_option_dict):
 
 if __name__ == "__main__":
     st.session_state["submission_source_code"] = None
-    content_option_dict = get_content_options()
-    language_option_dict = get_language_options()
-    submissions_page(content_option_dict, language_option_dict)
+
+    submissions_page()

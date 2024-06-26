@@ -1,17 +1,16 @@
 import pandas as pd
 import streamlit as st
 
-from customization.problems import download_problems
+from customization.problems import download_problems, get_problems_info
 
 from utils.check import login_required
 
-from customization.problems import get_problems_info
 
 
 st.set_page_config(page_title="題目管理頁面", page_icon="📄")
 
-def handle_table_pagination():
-    problems_dict = [problem.__dict__ for problem in st.session_state["problems"]]
+@login_required
+def handle_table_pagination(problems_dict):
     df = pd.DataFrame(problems_dict)
     df = df.drop(columns=["export_file_path"])
 
@@ -29,11 +28,12 @@ def handle_table_pagination():
 
 @login_required
 def problems_page():
+    problems_dict = [problem.__dict__ for problem in get_problems_info()]
 
     st.sidebar.header("題目管理")
     st.title("題目管理")
 
-    table_content = handle_table_pagination()
+    table_content = handle_table_pagination(problems_dict)
 
     # # 顯示資料
     st.table(table_content)
@@ -66,6 +66,4 @@ def problems_page():
 
 
 if __name__ == "__main__":
-    st.session_state["problems"] = get_problems_info()
-    
     problems_page()

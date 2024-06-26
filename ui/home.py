@@ -1,9 +1,8 @@
 # app.py
-import json
 import os
 
+from pydantic import ValidationError
 import streamlit as st
-from domjudge_tool_cli.commands import general
 from domjudge_tool_cli.commands.general import get_or_ask_config
 
 st.set_page_config(
@@ -30,7 +29,6 @@ content = """
 
 st.write(content)
 st.sidebar.button("清除暫存帳密", on_click=clear_owner)
-# st.sidebar.button("取得 Judge 資訊")
 
 domserver = None
 if os.path.exists("domserver.json"):
@@ -100,18 +98,23 @@ max_keepalive_connections = login_form.number_input(
 
 submit = login_form.form_submit_button("設定與登入")
 
+from customization import general
 if submit:
-    owner_info = general.config(
-        host=host,
-        username=username,
-        password=password,
-        version=version,
-        api_version=api_version,
-        disable_ssl=disable_ssl,
-        timeout=timeout,
-        max_connections=max_connections,
-        max_keepalive_connections=max_keepalive_connections,
-    )
+    try:
+        owner_info = general.config(
+            host=host,
+            username=username,
+            password=password,
+            version=version,
+            api_version=api_version,
+            disable_ssl=disable_ssl,
+            timeout=timeout,
+            max_connections=max_connections,
+            max_keepalive_connections=max_keepalive_connections,
+        )
+
+    except ValidationError as e:
+        st.error(f"錯誤：{e}")
 
     try:
         general.check(
@@ -123,5 +126,5 @@ if submit:
         st.session_state["logged_in"] = True
 
     except Exception as e:
-        st.error(f"錯誤：{e}")
+        st.error(f"登入失敗")
         st.session_state["logged_in"] = False

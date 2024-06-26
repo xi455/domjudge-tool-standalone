@@ -1,12 +1,14 @@
 import streamlit as st
 
-from utils.check import login_required
 from customization.scoreboard import export
 from customization.submissions import get_content_options
 
+from utils.check import login_required
 
 @login_required
-def scoreboard_page(content_option_dict):
+def scoreboard_page():
+    content_option_dict = get_content_options()
+
     st.set_page_config(page_title="匯出分數頁面", page_icon="📄")
     st.sidebar.header("匯出分數")
     st.title("匯出分數")
@@ -45,5 +47,4 @@ def scoreboard_page(content_option_dict):
             st.error("匯出失敗：", e)
 
 if __name__ == "__main__":
-    content_option_dict = get_content_options()
-    scoreboard_page(content_option_dict)
+    scoreboard_page()

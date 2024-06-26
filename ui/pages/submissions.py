@@ -1,4 +1,5 @@
 import streamlit as st
+from pydantic import ValidationError
 
 from customization.submissions import submission_file, get_content_options, contest_files
 
@@ -7,7 +8,9 @@ from utils.submissions import get_submissions_record, check_mode_value
 
 
 @login_required
-def submissions_page(content_option_dict):
+def submissions_page():
+    content_option_dict = get_content_options()
+
     st.set_page_config(page_title="管理提交紀錄頁面", page_icon="📄")
     st.sidebar.header("管理提交紀錄")
     st.title("管理提交紀錄")
@@ -21,11 +24,16 @@ def submissions_page(content_option_dict):
 
     if submission_file_form_cid_option:
         contest_name = submission_file_form_cid_option
-        subissions_record_dict = get_submissions_record(content_option_dict, contest_name)
+        try:
+            subissions_record_dict = get_submissions_record(content_option_dict, contest_name)
+        
+        except ValidationError as e:
+            st.error(f"無法取得提交紀錄，請檢查 網址連結 SSL 是否設定正確")
 
-    submission_file_form_ids_options = st.multiselect(
-    "選擇提交紀錄",
-    subissions_record_dict,)
+    if "subissions_record_dict" in locals():
+        submission_file_form_ids_options = st.multiselect(
+        "選擇提交紀錄",
+        subissions_record_dict,)
 
     submission_file_form_mode = st.selectbox(
         "輸出路徑樣式選擇",
@@ -45,7 +53,11 @@ def submissions_page(content_option_dict):
     )
 
     col1, col2, col3, col4 = st.columns([2, 3, 3, 4])
-    submission_file_submit = col1.button("匯出檔案", key="submission_file_submit")
+
+    if "subissions_record_dict" in locals():
+        submission_file_submit = col1.button("匯出檔案", key="submission_file_submit")
+    else:
+        submission_file_submit = col1.button("匯出檔案", key="submission_file_submit", disabled=True)
 
     if submission_file_submit:
         try:
@@ -126,5 +138,4 @@ def submissions_page(content_option_dict):
             st.error(f"匯出提交紀錄失敗：{e}")
 
 if __name__ == "__main__":
-    content_option_dict = get_content_options()
-    submissions_page(content_option_dict)
+    submissions_page()
