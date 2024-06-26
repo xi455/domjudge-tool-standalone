@@ -3,9 +3,8 @@ from typing import Optional
 from tablib import Dataset
 
 from domjudge_tool_cli.models import CreateUser
-from domjudge_tool_cli.utils.email import smtp
 
-from customization.utils.email import helper
+from customization.utils.email import helper, smtp
 
 def send_user_accounts(
     file: Optional[object],
@@ -31,7 +30,7 @@ def send_user_accounts(
     dataset = Dataset().load(input_file, format=format)
     context = helper.CustomEmailContext(subject_template, body_template)
     _, domain = from_email.split("@")
-    connection = smtp.SMTP(
+    connection = smtp.CustomSMTP(
         host,
         port,
         use_ssl,
