@@ -21,16 +21,12 @@ app = typer.Typer()
 def submission_list(
     cid: str,
     language_id: Optional[str] = None,
-    strict: Optional[bool] = False,
-    ids: Optional[List[str]] = None,
 ):
     """
     Console log submissions.
     Args:
-        cid: *Contest id.
-        language_id:
-        strict:
-        ids: Submission ids.
+        cid: Contest id.
+        language_id: Language id.
     """
 
     client = get_or_ask_config(general_state["config"])
@@ -40,21 +36,13 @@ def submission_list(
 def submission_file(
     cid: str,
     submission_ids: Optional[List[str]],
-    mode: int = typer.Argument(
-        default=2,
-        help="""
-            Output path format mode:\n
-            mode=1: team_name/problem_name/submission_file.
-            mode=2: problem_name/team_name/submission_file.
-            other: contest_id/submission_file
-            """,
-    ),
+    mode: int,
 ):
     """
     Download a submission source code files.
     Args:
         cid: Contest id.
-        id: Submission id.
+        submission_ids: Submission id.
         mode: Output path format mode.
         path: Output path.
         strict:
@@ -67,15 +55,7 @@ def submission_file(
 
 def contest_files(
     cid: str,
-    mode: int = typer.Argument(
-        default=2,
-        help="""
-        Output path format mode:\n
-        mode=1: team_name/problem_name/submission_file.
-        mode=2: problem_name/team_name/submission_file.
-        other: contest_id/submission_file
-        """,
-    ),
+    mode: int,
 ):
     """
     Download a contest all submissions source code files.

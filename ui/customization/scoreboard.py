@@ -9,9 +9,20 @@ from domjudge_tool_cli.commands.general import general_state, get_or_ask_config
 from domjudge_tool_cli.commands.scoreboard import titles, scores, summary
 
 def export(
-    cid: int,
+    cid: str,
     url: Optional[str] = None,
 ):
+    """
+    Export the scoreboard data as a CSV file.
+
+    Args:
+        cid (str): The ID of the contest.
+        url (str, optional): The URL of the scoreboard. If not provided, it will be obtained from the client configuration.
+
+    Returns:
+        str: The CSV data representing the scoreboard.
+
+    """
     if not url:
         client = get_or_ask_config(general_state["config"])
         url = f"{client.host}/public?static=1"

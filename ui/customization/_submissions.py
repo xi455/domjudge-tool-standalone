@@ -1,54 +1,44 @@
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 import os
-import typer
 import shutil
 import base64
 import zipfile
 import aiofiles
 import aiofiles.os
 import asyncio
-from tablib import Dataset
 
-from domjudge_tool_cli.models import DomServerClient, Submission
+from domjudge_tool_cli.models import DomServerClient
 from domjudge_tool_cli.services.api.v4 import (
-    JudgementAPI,
-    JudgementTypeAPI,
     ProblemsAPI,
     TeamsAPI,
+)
+from domjudge_tool_cli.commands.submissions._submissions import (
+    index_by_id,
+    judgement_submission_mapping,
 )
 
 from customization.serverices.api.v4 import CustomSubmissionsAPI
 
 
-def gen_submission_dataset(submissions: List[Any]) -> Dataset:
-    dataset = Dataset()
-    for idx, submission in enumerate(submissions):
-        if idx == 0:
-            dataset.headers = submission.dict().keys()
+def file_path(
+    cid: str,
+    mode: int,
+    team: object,
+    problem: object,
+):
+    """
+    Constructs the file path based on the given parameters.
 
-        dataset.append(submission.dict().values())
+    Parameters:
+    - cid (str): The contest ID.
+    - mode (int): The mode indicating the file path structure.
+    - team (Team): The team object.
+    - problem (Problem): The problem object.
 
-    return dataset
-
-
-def print_submissions_table(submissions: List[Submission]):
-    dataset = gen_submission_dataset(submissions)
-    # ["id", "team_id", "problem_id", "language_id",
-    # "files", "entry_point", "time", "contest_time", "externalid"]
-    for rm_key in ["externalid", "contest_time"]:
-        del dataset[rm_key]
-    typer.echo(dataset.export("cli", tablefmt="simple"))
-
-
-def index_by_id(objs):
-    data = dict()
-    for obj in objs:
-        data[obj.id] = obj
-    return data
-
-
-def file_path(cid, mode, team, problem):
+    Returns:
+    - filepath (str): The constructed file path.
+    """
     if mode == 1:
         filepath = f"team_{team.name}/problem_{problem.short_name}"
     elif mode == 2:
@@ -59,30 +49,23 @@ def file_path(cid, mode, team, problem):
     return filepath
 
 
-async def judgement_submission_mapping(
-    client: DomServerClient,
-    cid: str,
-) -> Dict[str, str]:
-    async with JudgementTypeAPI(**client.api_params) as api:
-        judgement_types = await api.all_judgement_types(cid)
-
-    async with JudgementAPI(**client.api_params) as api:
-        judgements = await api.all_judgements(cid)
-
-    judgement_type_mapping = {
-        item.id: str(item.name).lower().replace(" ", "_") for item in judgement_types
-    }
-    return {
-        item.submission_id: judgement_type_mapping.get(item.judgement_type_id)
-        for item in judgements
-    }
-
-
 async def get_submissions(
     client: DomServerClient,
     cid: str,
     language_id: Optional[str] = None,
 ) -> Dict[str, object]:
+    """
+    Retrieve submissions for a given contest and optional language.
+
+    Args:
+        client (DomServerClient): The DomServerClient instance used for API communication.
+        cid (str): The contest ID.
+        language_id (Optional[str], optional): The language ID. Defaults to None.
+
+    Returns:
+        Dict[str, object]: A dictionary mapping team-problem options to submissions.
+
+    """
     async with CustomSubmissionsAPI(**client.api_params) as api:
         submissions = await api.all_submissions(cid, language_id=language_id)
 
@@ -200,6 +183,20 @@ async def download_submission_zip(
     submission_ids: List[str],
     mode: int,
 ):
+    
+    """
+    Downloads and zips the submissions identified by the given submission IDs.
+
+    Args:
+        client (DomServerClient): The DomServerClient object used for making API requests.
+        cid (str): The contest ID.
+        submission_ids (List[str]): A list of submission IDs to download.
+        mode (int): The mode of the submissions.
+
+    Returns:
+        bytes: The zipped file containing the downloaded submissions.
+    """
+
     # 創建一個臨時目錄
     async with aiofiles.tempfile.TemporaryDirectory() as temp_dir:
         # 在臨時目錄中創建一個新的目錄
@@ -248,6 +245,17 @@ async def download_contest_files(
     cid: str,
     mode: int,
 ):
+    """
+    Downloads contest files for a given contest ID.
+
+    Args:
+        client (DomServerClient): The DomServerClient object used for API communication.
+        cid (str): The contest ID.
+        mode (int): The mode of the contest files.
+
+    Returns:
+        bytes: The downloaded contest files as a zip archive.
+    """
     judgement_mapping = await judgement_submission_mapping(client, cid)
     async with CustomSubmissionsAPI(**client.api_params) as api:
         submissions = await api.all_submissions(cid)

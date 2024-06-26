@@ -43,7 +43,7 @@ def problems_page():
     folder = st.text_input("需要匯出的壓縮檔名稱", placeholder="Export folder name")
 
     col1, col2, col3, col4 = st.columns([2, 2, 4, 4])
-    check_button = col1.button("確認題目")
+    check_button = col1.button("匯出題目")
     
     if check_button:
         try:
@@ -58,6 +58,8 @@ def problems_page():
                 )
             else:
                 st.error("輸入的題目 ID 有誤")
+
+            st.success(f"匯出檔案成功")
                 
         except Exception as e:
             st.error(f"匯出失敗： {e}")
