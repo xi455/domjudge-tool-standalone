@@ -1,0 +1,9 @@
+version: '3.3'
+
+services:
+  app:
+    build: .
+    # container_name: domjudge_tool_standalone
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
