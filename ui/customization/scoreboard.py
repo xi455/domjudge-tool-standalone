@@ -5,8 +5,9 @@ from typing import Optional
 import httpx
 from bs4 import BeautifulSoup
 
-from domjudge_tool_cli.commands.general import general_state, get_or_ask_config
 from domjudge_tool_cli.commands.scoreboard import titles, scores, summary
+
+from utils.web import get_config
 
 def export(
     cid: str,
@@ -24,7 +25,7 @@ def export(
 
     """
     if not url:
-        client = get_or_ask_config(general_state["config"])
+        client = get_config()
         url = f"{client.host}/public?static=1"
 
     cookies = None

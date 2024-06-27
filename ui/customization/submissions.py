@@ -4,9 +4,9 @@ from typing import Dict, List, Optional
 import typer
 
 from domjudge_tool_cli.models import DomServerClient
-from domjudge_tool_cli.commands.general import general_state, get_or_ask_config
 
 from customization.serverices.web import DomServerWebGateway
+from utils.web import get_config
 
 from ._submissions import (
     download_contest_files,
@@ -29,7 +29,7 @@ def submission_list(
         language_id: Language id.
     """
 
-    client = get_or_ask_config(general_state["config"])
+    client = get_config()
     return asyncio.run(get_submissions(client, cid, language_id))
 
 
@@ -48,8 +48,8 @@ def submission_file(
         strict:
         is_extract: unzip file if true.
     """
-    client = get_or_ask_config(general_state["config"])
-
+    
+    client = get_config()
     return asyncio.run(download_submission_zip(client, cid, submission_ids, mode))
 
 
@@ -66,7 +66,8 @@ def contest_files(
         strict:
         is_extract: unzip file if true.
     """
-    client = get_or_ask_config(general_state["config"])
+    
+    client = get_config()
     return asyncio.run(
         download_contest_files(
             client,
@@ -101,13 +102,13 @@ async def language_options(
 
 
 def get_content_options() -> Dict[str, object]:
-    client = get_or_ask_config(general_state["config"])
+    client = get_config()
 
     return asyncio.run(contest_options(client))
 
 
 def get_language_options() -> Dict[str, object]:
-    client = get_or_ask_config(general_state["config"])
+    client = get_config()
 
     return asyncio.run(language_options(client))
 
@@ -118,6 +119,6 @@ def view_submission(
     """
     View submission.
     """
-    client = get_or_ask_config(general_state["config"])
+    client = get_config()
 
     return asyncio.run(get_submission_source_code(client, cid, id))

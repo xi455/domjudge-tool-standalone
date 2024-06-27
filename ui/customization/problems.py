@@ -5,12 +5,11 @@ import zipfile
 
 from typing import List, Optional
 
-from domjudge_tool_cli.commands.general import general_state, get_or_ask_config
-
 from domjudge_tool_cli.models import DomServerClient
 from domjudge_tool_cli.services.web import DomServerWebGateway
 
 from ._problems import problems_info
+from utils.web import get_config
 
 async def download_problems_zips(
     client: DomServerClient,
@@ -56,11 +55,11 @@ def download_problems(
     if len(only) == 1 and isinstance(only[0], str):
         only = only[0].split(",")
 
-    client = get_or_ask_config(general_state["config"])
+    client = get_config()
     return asyncio.run(download_problems_zips(client, exclude, only, folder))
 
 
 def get_problems_info():
-    client = get_or_ask_config(general_state["config"])
 
+    client = get_config()
     return asyncio.run(problems_info(client))

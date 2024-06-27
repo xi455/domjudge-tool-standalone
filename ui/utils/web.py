@@ -1,3 +1,7 @@
+import streamlit as st
+from utils.check import login_required
+
+from domjudge_tool_cli.models import DomServerClient
 from domjudge_tool_cli.services.web import DomServerWebGateway
 
 async def get_session(client):
@@ -15,3 +19,9 @@ async def get_session(client):
     await web.login()
     
     return web
+
+
+@login_required
+def get_config() -> DomServerClient:
+    user_info = st.session_state.get("user_info")
+    return DomServerClient(**user_info)

@@ -1,9 +1,10 @@
 import asyncio
 
-from domjudge_tool_cli.commands.general import general_state, get_or_ask_config
+from domjudge_tool_cli.commands.general import general_state
 
 from customization._submissions import get_submissions
 from utils.check import login_required
+from utils.web import get_config
 
 
 @login_required
@@ -23,7 +24,7 @@ def get_submissions_record(content_option_dict, contest_name, language_option_di
     if language_name:
         lid = language_option_dict[language_name].LID
 
-    client = get_or_ask_config(general_state["config"])
+    client = get_config()
     return asyncio.run(get_submissions(client, cid, lid))
 
 
