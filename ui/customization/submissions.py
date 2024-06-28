@@ -5,7 +5,7 @@ import typer
 
 from domjudge_tool_cli.models import DomServerClient
 
-from customization.serverices.web import DomServerWebGateway
+from customization.serverices.web import CustomDomServerWebGateway
 from utils.web import get_config
 
 from ._submissions import (
@@ -80,7 +80,7 @@ def contest_files(
 async def contest_options(
     client: DomServerClient,
 ) -> Dict[str, object]:
-    DomServerWeb = DomServerWebGateway(client.version)
+    DomServerWeb = CustomDomServerWebGateway(client.version)
     
     async with DomServerWeb(**client.api_params) as web:
         await web.login()
@@ -92,7 +92,7 @@ async def contest_options(
 async def language_options(
     client: DomServerClient,
 ) -> Dict[str, object]:
-    DomServerWeb = DomServerWebGateway(client.version)
+    DomServerWeb = CustomDomServerWebGateway(client.version)
     
     async with DomServerWeb(**client.api_params) as web:
         await web.login()

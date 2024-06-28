@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from domjudge_tool_cli.models import Affiliation, CreateUser, ProblemItem, User
 
 from customization.serverices.web.base import CustomBaseDomServerWeb, _get_input_fields
-from customization.models import Contest, Language
+from customization.models import Contest, Language, Category
 
 class HomePath(str, Enum):
     JURY = "/jury"
@@ -42,6 +42,11 @@ class ContestPath(str, Enum):
 
 class LanguagePath(str, Enum):
     LIST = "/jury/languages"
+
+
+class CategoryPath(str, Enum):
+    LIST = "/jury/categories"
+    ADD = "/jury/categories/add"
 
 
 class DomServerWeb(CustomBaseDomServerWeb):
@@ -385,5 +390,80 @@ class DomServerWeb(CustomBaseDomServerWeb):
 
         all_language = Language(name="All")
         objs.insert(0, all_language)
+
+        return objs
+    
+    async def create_category(
+        self,
+        name: str,
+        sortorder: Optional[str],
+        color: Optional[str] = None,
+        visible: bool = True,
+        allow_self_registration: bool = False,
+    ) -> Category:
+        res = await self.get(CategoryPath.ADD)
+
+        data = {
+            **_get_input_fields(res.text),
+            "team_category[name]": name,
+            "team_category[sortorder]": sortorder if sortorder else "0",
+            "team_category[color]": color,
+            "team_category[visible]": "1" if visible else "0",
+            "team_category[allow_self_registration]": "1" if allow_self_registration else "0",
+            "team_category[save]": "",
+        }
+
+        res = await self.post(CategoryPath.ADD, body=data)
+        assert res.url.path != CategoryPath.ADD, "Category create fail."
+        category_id = res.url.path.split("/")[-1]
+
+        return Category(
+            ID=category_id,
+            sortorder=sortorder,
+            name=name,
+            color=color,
+            visible=visible,
+            allow_self_registration=allow_self_registration,
+        )
+    
+    async def get_categorys(self) -> List[Category]:
+        res = await self.get(CategoryPath.LIST)
+        res.raise_for_status()
+
+        soup = BeautifulSoup(res.text, "html.parser")
+
+        objs = []
+
+        table_elements = soup.select(
+            "table",
+            {
+                "class": "data-table table table-sm table-striped dataTable no-footer",
+                "id": "DataTables_Table_0",
+            },
+        )
+
+        tr_elements = table_elements[-1].select("tbody tr")
+
+        for tr_element in tr_elements:
+
+            td_elements = tr_element.select("td")
+            category_info_dict = dict()
+            
+            obj_title = ["ID", "sortorder", "name", "teams", "visible", "allow_self_registration"]
+            for index in range(len(obj_title)):
+
+                td = td_elements[index].text.strip()
+
+                if obj_title[index] == "visible" or obj_title[index] == "selfregistration":
+                    td = True if td == "yes" else False
+
+                if obj_title[index] == "teams":
+                    td = int(td)
+
+                category_info_dict[obj_title[index]] = td
+
+            obj = Category(**category_info_dict)
+
+            objs.append(obj)
 
         return objs

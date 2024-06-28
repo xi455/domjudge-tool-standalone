@@ -2,7 +2,7 @@ import streamlit as st
 from utils.check import login_required
 
 from domjudge_tool_cli.models import DomServerClient
-from domjudge_tool_cli.services.web import DomServerWebGateway
+from customization.serverices.web import CustomDomServerWebGateway
 
 async def get_session(client):
     """
@@ -14,7 +14,7 @@ async def get_session(client):
     Returns:
         The session object for interacting with the DomServerWeb API.
     """
-    DomServerWeb = DomServerWebGateway(client.version)
+    DomServerWeb = CustomDomServerWebGateway(client.version)
     web = DomServerWeb(**client.api_params)
     await web.login()
     
