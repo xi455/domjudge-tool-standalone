@@ -97,7 +97,9 @@ def users_page():
         value=False,
     )
 
-    if st.button("創建"):
+    col1, col2, col3, col4 = st.columns([2, 2, 4, 4])
+
+    if col1.button("創建"):
         try:
             if not user_csv or not user_roles:
                 st.warning("檢查 csv 檔案和用戶角色是否選擇")
@@ -107,7 +109,7 @@ def users_page():
                 affiliation_id = affiliation_dict[affiliation_select]
                 user_roles = [int(UserRoles.__members__[role].value) for role in user_roles]
 
-                import_users_teams(
+                csv_data = import_users_teams(
                     file=user_csv,
                     category_id=category_id,
                     affiliation_id=affiliation_id,
@@ -118,8 +120,15 @@ def users_page():
                     password_length=int(password_length) if password_length else None,
                     password_pattern=password_pattern,
                     new_password=new_password,
-                )     
+                )    
                 
+                col2.download_button(
+                    label="下載檔案",
+                    data=csv_data,
+                    file_name=f'user_teams.csv',
+                    mime="text/csv",
+                )
+
                 st.success(f"創建成功")
 
         except Exception as e:

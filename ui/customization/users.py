@@ -68,7 +68,7 @@ def import_users_teams(
     new_password: bool = False,
 ):
     client = get_config()
-    asyncio.run(
+    return asyncio.run(
         create_teams_and_users(
             client,
             file,

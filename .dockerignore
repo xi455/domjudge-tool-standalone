@@ -5,6 +5,7 @@
 # Custom files
 smtp_config
 ui/domserver.json
+ui/import-users-teams-out.csv
 
 # =============== From gitignore ===============
 

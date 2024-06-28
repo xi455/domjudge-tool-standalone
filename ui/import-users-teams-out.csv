@@ -1,3 +1,0 @@
-username,name,email,password,affiliation,is_exist
-ntubuser,test,ntubuser@mail.com,testpassword,ntub,True
-test,tt,test@mail.com,testpassword123,ntub,True

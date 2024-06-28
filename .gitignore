@@ -3,6 +3,7 @@
 
 .DS_Store
 smtp_config
+ui/import-users-teams-out.csv
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
