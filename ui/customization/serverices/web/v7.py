@@ -289,10 +289,10 @@ class DomServerWeb(CustomBaseDomServerWeb):
             test_data_count = row.select("td a")[6].text.strip()
             export_file_path = str(row.select("td a")[7]["href"]).strip()
 
-            if problem_id not in only:
+            if only and problem_id not in only:
                 continue
 
-            if problem_id in exclude:
+            if exclude and problem_id in exclude:
                 continue
 
             obj = ProblemItem(
@@ -330,7 +330,9 @@ class DomServerWeb(CustomBaseDomServerWeb):
 
             td_elements = tr_element.select("td")
             contest_info_dict = dict()
-            for index in range(len(thead_elements) - button_without_title):
+
+            obj_title = ["CID", "name", "shortname", "activate", "start", "end", "processballoons", "public", "teams", "problems"]
+            for index in range(len(obj_title)):
 
                 thead = (
                     thead_elements[index]
@@ -339,7 +341,7 @@ class DomServerWeb(CustomBaseDomServerWeb):
                     .replace("# ", "")
                 )
                 td = td_elements[index].text.strip()
-                contest_info_dict[thead] = td
+                contest_info_dict[obj_title[index]] = td
 
             obj = Contest(**contest_info_dict)
 

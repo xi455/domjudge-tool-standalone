@@ -25,6 +25,8 @@ def home_page():
     - 成績版功能 (scoreboard)\n
     - 提交紀錄匯出功能 (submissions)\n
     - 查看紀錄功能 (viewsubmission)\n
+    - 帳號查詢功能 (users info)\n
+    - 帳號匯入功能 (users)\n
     """
 
     st.write(content)

@@ -23,11 +23,11 @@ def emails_page():
     st.sidebar.header("寄送帳號")
     st.title("寄送帳號")
 
-    csv = convert_df("../templates/csv/import-users-teams.csv")
+    csv = convert_df("../templates/csv/send-email-example.csv")
     st.download_button(
-        label="Download Example Data as CSV",
+        label="Download Example Send Email as CSV",
         data=csv,
-        file_name="example_users_teams.csv",
+        file_name="send-email-example.csv",
         mime="text/csv",
     )
 

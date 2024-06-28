@@ -11,19 +11,7 @@ st.set_page_config(page_title="題目管理頁面", page_icon="📄")
 
 @login_required
 def handle_table_pagination(problems_dict):
-    df = pd.DataFrame(problems_dict)
-    df = df.drop(columns=["export_file_path"])
-
-    items_per_page = 10
-
-    # 讓使用者輸入頁碼
-    page_number = st.number_input(label="頁碼", min_value=1, value=1, step=1)
-
-    # 計算 start 和 end
-    start = (page_number - 1) * items_per_page
-    end = start + items_per_page
-
-    return df.iloc[start:end]
+    st.dataframe(pd.DataFrame(problems_dict))
 
 
 @login_required
@@ -33,10 +21,7 @@ def problems_page():
     st.sidebar.header("題目管理")
     st.title("題目管理")
 
-    table_content = handle_table_pagination(problems_dict)
-
-    # # 顯示資料
-    st.table(table_content)
+    handle_table_pagination(problems_dict)
 
     exclude_id = st.text_input("需要排除的題目 ID", placeholder="ex: problemId1,problemId2")
     only_id = st.text_input("需要匯出的題目 ID", placeholder="ex: problemId1,problemId2")
