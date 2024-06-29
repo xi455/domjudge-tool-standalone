@@ -1,44 +1,25 @@
-ARG PYTHON_VERSION=3.12.3
-FROM python:${PYTHON_VERSION} as base
+FROM python:3.12-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    software-properties-common \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN pip install poetry
 
-COPY ./pyproject.toml ./pyproject.toml
-COPY ./poetry.lock ./poetry.lock
+COPY pyproject.toml pyproject.toml
+COPY poetry.lock poetry.lock
 
 RUN poetry export --format=requirements.txt --output=requirements.txt --without-hashes \
     && pip install -r requirements.txt \
     && rm -rf /var/lib/{apt,dpkg,cache,log}
+    
+COPY ui .
+EXPOSE 8501
 
-# App
-FROM python:${PYTHON_VERSION}-slim
+HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-      libpq-dev \
-      cron \
-      libxml2 \
-      && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /app
-
-COPY --from=base /usr/local/lib/ /usr/local/lib/
-COPY --from=base /usr/local/bin/ /usr/local/bin/
-
-EXPOSE 8000
-
-COPY ./docker /docker
-COPY /docker/standalone-logrotate /etc/cron.d/standalone-logrotate
-Run crontab /etc/cron.d/standalone-logrotate
-
-RUN \
-  mv -v /docker/entrypoint.sh /usr/local/bin/entrypoint && \
-  chmod +x /usr/local/bin/entrypoint && \
-  \
-  mv -v /docker/standalone.logrotate.conf /etc/logrotate.d/standalone && \
-  chmod 644 /etc/logrotate.d/standalone && \
-  \
-  rm -rvf /docker
-
-COPY ./ui .
-
-CMD [ "entrypoint" ]
+ENTRYPOINT ["python", "-m", "streamlit", "run", "home.py", "--server.port=8501", "--server.address=0.0.0.0"]
