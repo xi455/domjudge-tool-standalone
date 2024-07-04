@@ -4,13 +4,13 @@ from pydantic import BaseModel
 
 
 class Contest(BaseModel):
-    CID: str
+    cid: str
     name: str
     shortname: str
     activate: str
     start: str
     end: str
-    processballoons: bool
+    process_balloons: bool
     public: bool
     teams: str
     problems: int

@@ -331,7 +331,7 @@ class DomServerWeb(CustomBaseDomServerWeb):
             td_elements = tr_element.select("td")
             contest_info_dict = dict()
 
-            obj_title = ["CID", "name", "shortname", "activate", "start", "end", "processballoons", "public", "teams", "problems"]
+            obj_title = ["cid", "name", "shortname", "activate", "start", "end", "process_balloons", "public", "teams", "problems"]
             for index in range(len(obj_title)):
 
                 thead = (
@@ -372,12 +372,12 @@ class DomServerWeb(CustomBaseDomServerWeb):
             td_elements = tr_element.select("td")
             language_info_dict = dict()
             
-            obj_title = ["LID", "externalID", "name", "entrypoint", "allowsubmit", "allowjudge", "timefactor", "extensions"]        
+            obj_title = ["lid", "external_id", "name", "entrypoint", "allow_submit", "allow_judge", "time_factor", "extensions"]        
             for index in range(len(obj_title)):
 
                 td = td_elements[index].text.strip()
 
-                if obj_title[index] == "entrypoint" or obj_title[index] == "allowsubmit" or obj_title[index] == "allowjudge":
+                if obj_title[index] == "entrypoint" or obj_title[index] == "allow_submit" or obj_title[index] == "allow_judge":
                     td = True if td == "yes" else False
 
                 if obj_title[index] == "timefactor":
@@ -387,7 +387,7 @@ class DomServerWeb(CustomBaseDomServerWeb):
 
             obj = Language(**language_info_dict)
 
-            if obj.allowsubmit:
+            if obj.allow_submit:
                 objs.append(obj)
 
         all_language = Language(name="All")
@@ -420,7 +420,7 @@ class DomServerWeb(CustomBaseDomServerWeb):
         category_id = res.url.path.split("/")[-1]
 
         return Category(
-            ID=category_id,
+            id=category_id,
             sortorder=sortorder,
             name=name,
             color=color,
@@ -451,7 +451,7 @@ class DomServerWeb(CustomBaseDomServerWeb):
             td_elements = tr_element.select("td")
             category_info_dict = dict()
             
-            obj_title = ["ID", "sortorder", "name", "teams", "visible", "allow_self_registration"]
+            obj_title = ["id", "sortorder", "name", "teams", "visible", "allow_self_registration"]
             for index in range(len(obj_title)):
 
                 td = td_elements[index].text.strip()

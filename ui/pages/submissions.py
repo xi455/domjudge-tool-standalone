@@ -4,11 +4,12 @@ from pydantic import ValidationError
 from customization.submissions import submission_file, get_content_options, contest_files
 
 from utils.check import login_required
-from utils.submissions import get_submissions_record, check_mode_value
+from utils.submissions import get_submissions_record, ModeValue
 
 
 @login_required
 def submissions_page():
+    mode_options_dict = ModeValue.get_mode_values()
     content_option_dict = get_content_options()
 
     st.set_page_config(page_title="管理提交紀錄頁面", page_icon="📄")
@@ -37,11 +38,7 @@ def submissions_page():
 
     submission_file_form_mode = st.selectbox(
         "輸出路徑樣式選擇",
-        options=[
-            "選擇一：team_name/problem_name/submission_file",
-            "選擇二：problem_name/team_name/submission_file",
-            "選擇三：contest_id/submission_file",
-        ],
+        options=mode_options_dict.keys(),
         key="submission_file_form_mode",
     )
 
@@ -62,10 +59,10 @@ def submissions_page():
     if submission_file_submit:
         try:
             ids = [subissions_record_dict[i].id for i in submission_file_form_ids_options]
-            mode = check_mode_value(submission_file_form_mode)
+            mode = mode_options_dict.get(submission_file_form_mode)
 
             file_data = submission_file(
-                cid=content_option_dict[submission_file_form_cid_option].CID,
+                cid=content_option_dict[submission_file_form_cid_option].cid,
                 submission_ids=ids,
                 mode=mode,
             )
@@ -94,11 +91,7 @@ def submissions_page():
 
     contest_files_form_mode = st.selectbox(
         "輸出路徑樣式選擇",
-        options=[
-            "選擇一：team_name/problem_name/submission_file",
-            "選擇二：problem_name/team_name/submission_file",
-            "選擇三：contest_id/submission_file",
-        ],
+        options=mode_options_dict.keys(),
         key="contest_files_form_mode",
     )
 
@@ -114,8 +107,8 @@ def submissions_page():
 
     if contest_files_submit:
         try:
-            cid = content_option_dict[contest_files_form_cid_option].CID
-            mode = check_mode_value(contest_files_form_mode)
+            cid = content_option_dict[contest_files_form_cid_option].cid
+            mode = mode_options_dict.get(contest_files_form_mode)
             file_data = contest_files(
                 cid=cid,
                 mode=mode,

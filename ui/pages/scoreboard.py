@@ -31,7 +31,7 @@ def scoreboard_page():
 
     if export_button:
         try:
-            cid = content_option_dict[contest_name].CID
+            cid = content_option_dict[contest_name].cid
 
             csv_data = export(cid)
             col2.download_button(

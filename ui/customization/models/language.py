@@ -4,11 +4,11 @@ from pydantic import BaseModel
 
 
 class Language(BaseModel):
-    LID: Optional[str]
-    externalID: Optional[str]
+    lid: Optional[str]
+    external_id: Optional[str]
     name: Optional[str]
     entrypoint: Optional[bool]
-    allowsubmit: Optional[bool]
-    allowjudge: Optional[bool]
+    allow_submit: Optional[bool]
+    allow_judge: Optional[bool]
     timefactor: Optional[int]
     extensions: Optional[str]

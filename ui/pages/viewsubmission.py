@@ -61,7 +61,7 @@ def submissions_page():
 
     if submission_submit:
         try:
-            cid = content_option_dict[contest_option].CID
+            cid = content_option_dict[contest_option].cid
             submission_id = subissions_record_dict[submission_id_option].id
 
             st.session_state["submission_source_code"] = view_submission(
@@ -70,7 +70,7 @@ def submissions_page():
             )
 
         except Exception as e:
-            st.error(f"列出提交紀錄失敗：{cid}，{e}")
+            st.error(f"列出提交紀錄失敗：{e}")
 
 
     if st.session_state["submission_source_code"]:
