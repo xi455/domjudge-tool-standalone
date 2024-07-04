@@ -1,14 +1,15 @@
-from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+import re
+from typing import Any, Dict, List, Optional
 
 import typer
 from tablib import Dataset
 
 from domjudge_tool_cli.models import CreateUser, DomServerClient, User
 from domjudge_tool_cli.services.api.v4 import UsersAPI
-from domjudge_tool_cli.utils.password import gen_password
+from domjudge_tool_cli.commands.users._users import create_team_and_user, UserExportFormat
 
 from customization.serverices.web import CustomDomServerWebGateway
+
 from utils.web import get_session
 
 
@@ -21,31 +22,6 @@ def gen_user_dataset(users: List[Any]) -> Dataset:
         dataset.append(user.dict().values())
 
     return dataset
-
-
-class UserExportFormat(str, Enum):
-    JSON = "json"
-    CSV = "csv"
-
-    def export(
-        self,
-        users: List[Any],
-        file: Optional[typer.FileBinaryWrite] = None,
-        name: Optional[str] = None,
-    ) -> str:
-        dataset = gen_user_dataset(users)
-        if file:
-            file.write(dataset.export(self.value))
-            return file.name
-        else:
-            if not name:
-                name = f"export_users.{self.value}"
-            else:
-                name = f"{name}.{self.value}"
-
-            with open(name, "w") as f:
-                f.write(dataset.export(self.value))
-                return name
 
 
 async def get_users(
@@ -70,72 +46,10 @@ async def get_users(
     return users
 
 
-async def create_team_and_user(
-    client: DomServerClient,
-    user: Union[CreateUser, User],
-    category_id: Optional[int] = None,
-    affiliation_id: Optional[int] = None,
-    user_roles: Optional[List[int]] = None,
-    enabled: bool = True,
-    password_length: Optional[int] = None,
-    password_pattern: Optional[str] = None,
-    new_password: bool = False,
-) -> CreateUser:
-    if not category_id:
-        category_id = client.category_id
-
-    if not user_roles:
-        user_roles = client.user_roles
-
-    if not user.password or new_password:
-        user.password = gen_password(password_length, password_pattern)
-
-    DomServerWeb = CustomDomServerWebGateway(client.version)
-    async with DomServerWeb(**client.api_params) as web:
-        await web.login()
-        if not affiliation_id and not user.affiliation:
-            affiliation_id = client.affiliation_id
-        elif user.affiliation:
-            affiliation = await web.get_affiliation(user.affiliation)
-
-            if affiliation:
-                affiliation_id = affiliation.id
-            else:
-                name = user.affiliation
-                affiliation = await web.create_affiliation(
-                    name,
-                    name,
-                    client.affiliation_country,
-                )
-                affiliation_id = affiliation.id
-
-
-        if isinstance(user, User):
-            team_id, user_id = await web.update_team(
-                user,
-                category_id,
-                affiliation_id,
-                enabled,
-            )
-            user = CreateUser.from_user(user)
-            
-        else:
-            team_id, user_id = await web.create_team_and_user(
-                user,
-                category_id,
-                affiliation_id,
-                enabled,
-            )
-
-        await web.set_user_password(user_id, user.password, user_roles, enabled)
-
-        return user
-
-
 async def create_teams_and_users(
     client: DomServerClient,
     file: Optional[object],
-    category_id: Optional[int] = None,
+    category_id: Optional[str] = None,
     affiliation_id: Optional[str] = None,
     user_roles: Optional[List[int]] = None,
     enabled: bool = True,
@@ -165,6 +79,9 @@ async def create_teams_and_users(
     affiliation_ids_name_dict = {affiliation.id: affiliation.shortname for affiliation in affiliation_option}
 
     for item in dataset.dict:
+        if not re.match(r'^[0-9a-zA-Z_-]+$', item["username"]):
+            raise ValueError("Username Error May only contain [a-zA-Z0-9_-].")
+        
         item["email"] = None if not item.get("email") else item["email"]
         item["affiliation"] = item["affiliation"] if item["affiliation"] else affiliation_ids_name_dict.get(str(affiliation_id))
         
@@ -224,44 +141,7 @@ async def create_teams_and_users(
 
         with open(file_name, "r") as f:
             return f.read()    
-
-async def delete_teams_and_users(
-    client: DomServerClient,
-    include: Optional[List[str]] = None,
-    exclude: Optional[List[str]] = None,
-) -> None:
-    default_ignore_users = ["admin", "judgehost", client.username]
-
-    async with UsersAPI(**client.api_params) as api:
-        users = await api.all_users()
-
-    existing_users = [it.username for it in users]
-
-    if not exclude:
-        exclude = default_ignore_users
-
-    if not include:
-        include = existing_users
-
-    if include:
-        include = list(
-            filter(
-                lambda it: it not in default_ignore_users,
-                include,
-            )
-        )
-
-    include_teams = [it.team_id for it in users if it.username in include]
-    exclude_teams = [it.team_id for it in users if it.username in exclude]
-
-    DomServerWeb = CustomDomServerWebGateway(client.version)
-    async with DomServerWeb(**client.api_params) as web:
-        await web.login()
-        typer.echo("Delete users.")
-        await web.delete_users(include, exclude)
-        typer.echo("Delete teams.")
-        await web.delete_teams(include_teams, exclude_teams)
-
+        
 
 async def get_affiliations(client: DomServerClient):
     DomServerWeb = CustomDomServerWebGateway(client.version)
