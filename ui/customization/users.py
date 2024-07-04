@@ -2,13 +2,12 @@ import asyncio
 import typer
 
 from typing import List, Dict, Optional
+from domjudge_tool_cli.commands.users._users import delete_teams_and_users, UserExportFormat
 
 from customization._users import (
-    UserExportFormat,
     create_teams_and_users,
     create_category_obj,
     categories_options,
-    delete_teams_and_users,
     get_users,
     get_affiliations,
 )
@@ -56,8 +55,8 @@ def user_list(
 
 def import_users_teams(
     file: Optional[object],
-    category_id: Optional[int] = None,
-    affiliation_id: Optional[int] = None,
+    category_id: Optional[str] = None,
+    affiliation_id: Optional[str] = None,
     user_roles: Optional[List[int]] = None,
     enabled: bool = True,
     format: Optional[UserExportFormat] = None,

@@ -1,29 +1,19 @@
-import os
 import streamlit as st
 
 from customization.emails import send_user_accounts
 
 from utils.check import login_required
+from utils.web import get_example_data
 
 
 st.set_page_config(page_title="寄送帳號頁面", page_icon="📄")
-
-@st.cache_data
-def convert_df(pkg_path):
-    path = os.path.join(os.path.dirname(__file__), pkg_path)
-
-    with open(path, "r", encoding="utf-8") as f:
-        content = f.read()
-
-    return content
-
 
 @login_required
 def emails_page():
     st.sidebar.header("寄送帳號")
     st.title("寄送帳號")
 
-    csv = convert_df("../templates/csv/send-email-example.csv")
+    csv = get_example_data("templates/csv/send-email-example.csv")
     st.download_button(
         label="Download Example Send Email as CSV",
         data=csv,
@@ -31,7 +21,7 @@ def emails_page():
         mime="text/csv",
     )
 
-    txt = convert_df("../templates/txt/body.txt")
+    txt = get_example_data("templates/txt/body.txt")
     st.download_button(
         label="Download Template Example Data as TXT",
         data=txt,

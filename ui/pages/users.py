@@ -1,4 +1,3 @@
-import os
 import streamlit as st
 
 from customization.users import (
@@ -8,29 +7,22 @@ from customization.users import (
 from customization.users import import_users_teams
 
 from utils.check import login_required
+from utils.web import get_example_data
 from utils.users import UserRoles
 
 
 st.set_page_config(page_title="創建帳號頁面", page_icon="📄")
 
-@st.cache_data
-def convert_df(pkg_path):
-    path = os.path.join(os.path.dirname(__file__), pkg_path)
-
-    with open(path, "r", encoding="utf-8") as f:
-        content = f.read()
-
-    return content
-
 @login_required
 def users_page():
+    roles_options = UserRoles.get_user_roles_values()
     category_options = get_categories_options()
     affiliation_dict = {affiliation.shortname: affiliation.id for affiliation in get_affiliations_options()}
 
     st.sidebar.header("創建帳號")
     st.title("創建帳號")
 
-    csv = convert_df("../templates/csv/import-users-teams.csv")
+    csv = get_example_data("templates/csv/import-users-teams.csv")
     st.download_button(
         label="Download Example Data as CSV",
         data=csv,
@@ -42,7 +34,7 @@ def users_page():
 
     if category_options:
         category = st.selectbox(
-            "類別",
+            "類別 (如 csv 已定義 affiliation 可跳過設定)",
             options=category_options,
             key="category",
         )
@@ -56,7 +48,7 @@ def users_page():
 
     user_roles = st.multiselect(
     "user_roles",
-    UserRoles.__members__.keys(),
+    roles_options.keys(),
     )
 
     enabled = st.checkbox(
@@ -77,7 +69,7 @@ def users_page():
         value=False,
     )
 
-    password_length = st.text_input(
+    password_length = st.number_input(
         "Password Length",
         key="password_length",
         value=None,
@@ -105,9 +97,9 @@ def users_page():
                 st.warning("檢查 csv 檔案和用戶角色是否選擇")
 
             else:
-                category_id = category_options.get(category).ID
+                category_id = category_options.get(category).id
                 affiliation_id = affiliation_dict[affiliation_select]
-                user_roles = [int(UserRoles.__members__[role].value) for role in user_roles]
+                user_roles = [roles_options.get(key) for key in roles_options]
 
                 csv_data = import_users_teams(
                     file=user_csv,
@@ -117,7 +109,7 @@ def users_page():
                     enabled=enabled,
                     ignore_existing=ignore_existing,
                     delete_existing=delete_existing,
-                    password_length=int(password_length) if password_length else None,
+                    password_length=password_length,
                     password_pattern=password_pattern,
                     new_password=new_password,
                 )    

@@ -1,12 +1,16 @@
 from enum import Enum
 
 
-class UserRoles(str, Enum):
-    Administrative_User = 1
-    Jury_User = 2
-    Team_User = 3
-    Balloon_runner = 4
-    Internal_System_Judgehost = 6
-    API_reader = 9
-    API_writer = 10
-    Source_code_reader = 11
+class UserRoles(Enum):
+    ADMINISTRATIVE_USER = ("Administrative User", 1)
+    JURY_USER = ("Jury User", 2)
+    TEAM_USER = ("Team Member", 3)
+    BALLOON_RUNNER = ("Balloon runner", 4)
+    INTERNAL_SYSTEM_JUDGEHOST = ("(Internal/System) Judgehost", 6)
+    API_READER = ("API reader", 9)
+    API_WRITER = ("API writer", 10)
+    SOURCE_CODE_READER = ("Source code reader", 11)
+
+    @classmethod
+    def get_user_roles_values(cls):
+        return {role.value[0]: role.value[1] for role in cls}

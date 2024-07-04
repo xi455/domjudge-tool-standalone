@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class Category(BaseModel):
-    ID: str
+    id: str
     sortorder: Optional[str]
     name: str
     color: Optional[str]
