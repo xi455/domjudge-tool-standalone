@@ -1,21 +1,17 @@
 import asyncio
 from typing import Dict, List, Optional
 
-import typer
-
 from domjudge_tool_cli.models import DomServerClient
 
 from customization.serverices.web import CustomDomServerWebGateway
-from utils.web import get_config
-
-from ._submissions import (
+from customization._submissions import (
     download_contest_files,
     get_submissions,
     download_submission_zip,
     get_submission_source_code,
 )
 
-app = typer.Typer()
+from utils.web import get_config
 
 
 def submission_list(

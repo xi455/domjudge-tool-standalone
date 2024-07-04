@@ -34,14 +34,14 @@ def users_page():
 
     if category_options:
         category = st.selectbox(
-            "類別 (如 csv 已定義 affiliation 可跳過設定)",
+            "類別",
             options=category_options,
             key="category",
         )
 
     if affiliation_dict:
         affiliation_select = st.selectbox(
-            "隸屬",
+            "隸屬 (如 csv 已定義 affiliation 可跳過設定)",
             options=affiliation_dict.keys(),
             key="affiliation_select",
         )
@@ -99,7 +99,7 @@ def users_page():
             else:
                 category_id = category_options.get(category).id
                 affiliation_id = affiliation_dict[affiliation_select]
-                user_roles = [roles_options.get(key) for key in roles_options]
+                user_roles = [roles_options.get(key) for key in user_roles]
 
                 csv_data = import_users_teams(
                     file=user_csv,
