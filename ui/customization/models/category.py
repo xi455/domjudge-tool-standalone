@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 class Category(BaseModel):
     id: str
+    icpc_id: Optional[str]
     sortorder: Optional[str]
     name: str
     color: Optional[str]

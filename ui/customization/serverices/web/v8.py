@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 
 from domjudge_tool_cli.models import Affiliation, CreateUser, ProblemItem, User
 from domjudge_tool_cli.services.web.base import _get_input_fields
-from domjudge_tool_cli.services.web.v7 import DomServerWeb
+from domjudge_tool_cli.services.web.v8 import DomServerWeb
 
 from customization.models import Contest, Language, Category
 from customization.serverices.web.base import CustomBaseDomServerWeb
@@ -147,7 +147,7 @@ class CustomDomServerWeb(CustomBaseDomServerWeb, DomServerWeb):
             td_elements = tr_element.select("td")
             category_info_dict = dict()
             
-            obj_title = ["id", "sortorder", "name", "teams", "visible", "allow_self_registration"]
+            obj_title = ["id", "icpc_id", "sortorder", "name", "teams", "visible", "allow_self_registration"]
             for index in range(len(obj_title)):
 
                 td = td_elements[index].text.strip()
@@ -191,7 +191,7 @@ class CustomDomServerWeb(CustomBaseDomServerWeb, DomServerWeb):
             td_elements = tr_element.select("td")
             contest_info_dict = dict()
 
-            obj_title = ["cid", "name", "shortname", "activate", "start", "end", "process_balloons", "public", "teams", "problems"]
+            obj_title = ["cid", "name", "shortname", "activate", "start", "end", "process_balloons", "medals", "public", "teams", "problems"]
             for index in range(len(obj_title)):
 
                 thead = (

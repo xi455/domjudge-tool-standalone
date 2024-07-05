@@ -22,19 +22,20 @@ def check(
     max_keepalive_connections: Optional[int] = None,
 ):
 
-    client = None
-    if host and username and password:
-        client = DomServerClient(
-            host=host,
-            username=username,
-            password=password,
-            disable_ssl=disable_ssl or False,
-            timeout=timeout,
-            max_connections=max_connections,
-            max_keepalive_connections=max_keepalive_connections,
-            version=version,
-            api_version=api_version,
-        )
+    if not all([host, username, password, version]):
+        raise ValueError("請提供網址、帳號、密碼、與版本資訊。")
+
+    client = DomServerClient(
+        host=host,
+        username=username,
+        password=password,
+        disable_ssl=disable_ssl or False,
+        timeout=timeout,
+        max_connections=max_connections,
+        max_keepalive_connections=max_keepalive_connections,
+        version=version,
+        api_version=api_version,
+    )
 
     if client:
         typer.echo(f"Try to connect {client.host}.")

@@ -63,7 +63,7 @@ def home_page():
     version = login_form.text_input(
         "Judge 版本",
         key="version",
-        value=domserver.get("version", "7.3.4"),
+        value=domserver.get("version", None),
         placeholder="請輸入 Judge 版本",
     )
 
@@ -98,9 +98,7 @@ def home_page():
         placeholder="請輸入 Max Keepalive Connections 數量",
     )
 
-    submit = login_form.form_submit_button("設定與登入")
-
-    if submit:
+    if login_form.form_submit_button("設定與登入"):
         
         try:
             parms = {
@@ -127,6 +125,9 @@ def home_page():
             
             else:
                 st.error(f"登入失敗")
+
+        except ValueError as e:
+            st.error(f"登入失敗, {e}")
 
         except Exception as e:
             st.error(f"登入失敗, {e}")

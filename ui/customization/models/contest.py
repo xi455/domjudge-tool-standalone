@@ -11,6 +11,7 @@ class Contest(BaseModel):
     start: str
     end: str
     process_balloons: bool
+    medals: Optional[str]
     public: bool
     teams: str
     problems: int
