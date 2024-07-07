@@ -1,3 +1,4 @@
+import logging
 import streamlit as st
 
 from customization.scoreboard import export
@@ -39,10 +40,15 @@ def scoreboard_page():
                 mime="text/csv",
             )
 
+            logger.info(f"Export Scoreboard Success")
             st.success(f"匯出檔案成功")
 
         except Exception as e:
-            st.error("匯出失敗：", e)
+            logger.error(f"Export Scoreboard Error, Exception: {e}")
+            st.error("匯出失敗")
 
 if __name__ == "__main__":
+    logger = logging.getLogger("standalone_logger")
+    logger.info("GET /scoreboard")
+
     scoreboard_page()

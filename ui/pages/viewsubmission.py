@@ -1,4 +1,6 @@
+import logging
 import streamlit as st
+
 from pydantic import ValidationError
 
 from customization.submissions import view_submission
@@ -33,6 +35,7 @@ def submissions_page():
             subissions_record_dict = get_submissions_record(content_option_dict, contest_name)
 
         except ValidationError as e:
+            logger.error(f"ValidationError: {e}")
             st.error(f"無法取得提交紀錄，請檢查 網址連結 SSL 是否設定正確")
 
     language_option = st.selectbox(
@@ -48,6 +51,7 @@ def submissions_page():
             subissions_record_dict = get_submissions_record(content_option_dict, contest_name, language_option_dict, language_name)
 
         except ValidationError as e:
+            logger.error(f"ValidationError: {e}")
             st.error(f"無法取得提交紀錄，請檢查 url SSL 是否設定正確")
 
     submission_id_option = st.selectbox(
@@ -70,10 +74,12 @@ def submissions_page():
             )
 
         except cust_exceptions.SubmissionNotFoundException as e:
+            logger.error(f"SubmissionNotFoundException: {e}")
             st.error(e)
 
         except Exception as e:
-            st.error(f"列出提交紀錄失敗：{e}")
+            logger.error(f"ViewSubmission Error, Exception: {e}")
+            st.error(f"列出提交紀錄失敗")
 
 
     if st.session_state["submission_source_code"]:
@@ -84,5 +90,7 @@ def submissions_page():
 
 if __name__ == "__main__":
     st.session_state["submission_source_code"] = None
+    logger = logging.getLogger("standalone_logger")
+    logger.info("GET /viewsubmission")
 
     submissions_page()

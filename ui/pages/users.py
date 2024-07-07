@@ -1,3 +1,4 @@
+import logging
 import streamlit as st
 
 from customization.options import (
@@ -95,37 +96,42 @@ def users_page():
         try:
             if not user_csv or not user_roles:
                 st.warning("檢查 csv 檔案和用戶角色是否選擇")
+                return
 
-            else:
-                category_id = category_options.get(category).id
-                affiliation_id = affiliation_dict[affiliation_select]
-                user_roles = [roles_options.get(key) for key in user_roles]
+            category_id = category_options.get(category).id
+            affiliation_id = affiliation_dict[affiliation_select]
+            user_roles = [roles_options.get(key) for key in user_roles]
 
-                csv_data = import_users_teams(
-                    file=user_csv,
-                    category_id=category_id,
-                    affiliation_id=affiliation_id,
-                    user_roles=user_roles,
-                    enabled=enabled,
-                    ignore_existing=ignore_existing,
-                    delete_existing=delete_existing,
-                    password_length=password_length,
-                    password_pattern=password_pattern,
-                    new_password=new_password,
-                )    
-                
-                col2.download_button(
-                    label="下載檔案",
-                    data=csv_data,
-                    file_name=f'user_teams.csv',
-                    mime="text/csv",
-                )
+            csv_data = import_users_teams(
+                file=user_csv,
+                category_id=category_id,
+                affiliation_id=affiliation_id,
+                user_roles=user_roles,
+                enabled=enabled,
+                ignore_existing=ignore_existing,
+                delete_existing=delete_existing,
+                password_length=password_length,
+                password_pattern=password_pattern,
+                new_password=new_password,
+            )    
+            
+            col2.download_button(
+                label="下載檔案",
+                data=csv_data,
+                file_name=f'user_teams.csv',
+                mime="text/csv",
+            )
 
-                st.success(f"創建成功")
+            logger.info(f"Users Success")
+            st.success(f"創建成功")
 
         except Exception as e:
-            st.error(f"錯誤：{e}")
+            logger.error(f"Users Error, Exception: {e}")
+            st.error(f"錯誤")
 
 
 if __name__ == "__main__":
+    logger = logging.getLogger("standalone_logger")
+    logger.info("GET /users")
+
     users_page()

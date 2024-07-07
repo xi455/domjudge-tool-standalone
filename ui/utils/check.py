@@ -1,7 +1,10 @@
+import logging
 import streamlit as st
 
 from functools import wraps
 
+
+logger = logging.getLogger("standalone_logger")
 
 def login_required(func):
     @wraps(func)
@@ -11,6 +14,7 @@ def login_required(func):
             return func(*args, **kwargs)
         else:
             # 如果使用者還沒有登入，則顯示一個錯誤訊息
+            logger.error(f"GET Attempt to access {func.__name__} page failed, user is not logged in")
             st.error("請先登入")
 
     return wrapper

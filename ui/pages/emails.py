@@ -1,3 +1,4 @@
+import logging
 import streamlit as st
 
 from customization.emails import send_user_accounts
@@ -95,13 +96,19 @@ def emails_page():
                     username=username,
                     password=password,                
                 )
+                
+                logger.info(f"Send Email Success")
                 st.success(f"寄送成功")
 
             except Exception as e:
-                st.error(f"錯誤：{e}")
+                logger.error(f"Send Email Error, Exception: {e}")
+                st.error(f"錯誤")
         else:
             st.warning("請上傳 csv, txt 檔案")
 
 
 if __name__ == "__main__":
+    logger = logging.getLogger("standalone_logger")
+    logger.info("GET /emails")
+
     emails_page()

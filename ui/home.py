@@ -1,7 +1,11 @@
 # app.py
 import streamlit as st
 
+import logging
+from logging_config import init_logging
+
 from customization import general
+
 
 st.set_page_config(
     page_title="首頁",
@@ -11,6 +15,8 @@ st.set_page_config(
 def clear_owner():
     if st.session_state.get("user_info"):
         st.session_state["user_info"] = None
+
+        logger.info("User Logout Success")
         st.success("清除成功")
 
 
@@ -118,20 +124,24 @@ def home_page():
             )
 
             if client:
+                logger.info(f"User {client.username} Success connect DomJudge {client.version} website.")
                 st.success(f"登入成功")
+
                 st.session_state["user_info"] = {
                     **client.dict(),
                 }
-            
-            else:
-                st.error(f"登入失敗")
 
         except ValueError as e:
-            st.error(f"登入失敗, {e}")
+            logger.error(f"Login Failed, ValueError: {e}")
+            st.error(f"登入失敗")
 
         except Exception as e:
-            st.error(f"登入失敗, {e}")
+            logger.error(f"Login Error, Exception: {e}")
+            st.error(f"登入錯誤")
 
 
 if __name__ == "__main__":
+    init_logging()
+    logger = logging.getLogger("standalone_logger")
+
     home_page()

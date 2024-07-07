@@ -1,3 +1,4 @@
+import logging
 import pandas as pd
 import streamlit as st
 
@@ -63,6 +64,10 @@ def user_info_page():
     )
 
     if st.button("建立"):
+        if not category:
+            st.warning("請輸入新類別名稱")
+            return
+
         try:
             create_category(
                 name=category,
@@ -71,9 +76,16 @@ def user_info_page():
                 visible=visible,
                 allow_self_registration=allow_self_registration,
             )
+
+            logger.info(f"Create Category Success")
             st.success(f"已建立新類別: {category}")
+
         except Exception as e:
+            logger.error(f"Users Info Error, Exception: {e}")
             st.error(f"建立新類別失敗: {e}")
 
 if __name__ == "__main__":
+    logger = logging.getLogger("standalone_logger")
+    logger.info("GET /user_info")
+
     user_info_page()

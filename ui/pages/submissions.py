@@ -1,4 +1,6 @@
+import logging
 import streamlit as st
+
 from pydantic import ValidationError
 
 from customization.submissions import submission_file, contest_files
@@ -31,6 +33,7 @@ def submissions_page():
             subissions_record_dict = get_submissions_record(content_option_dict, contest_name)
         
         except ValidationError as e:
+            logger.error(f"ValidationError: {e}")
             st.error(f"無法取得提交紀錄，請檢查 網址連結 SSL 是否設定正確")
 
     if "subissions_record_dict" in locals():
@@ -74,14 +77,16 @@ def submissions_page():
                     mime="application/zip",
                 )
 
+            logger.info(f"Export Submissions Success")
             st.success(f"匯出檔案成功")
 
-        
         except cust_exceptions.SubmissionNotFoundException as e:
+            logger.error(f"SubmissionNotFoundException: {e}")
             st.error(e)
 
         except Exception as e:
-            st.error(f"下載提交檔案失敗：{cid}，{e}")
+            logger.error(f"Download Submissions Error, Exception: {e}")
+            st.error(f"下載提交檔案失敗")
     
     st.markdown('### 匯出提交紀錄')
 
@@ -122,16 +127,20 @@ def submissions_page():
                     file_name=f'{zip_filename if zip_filename else "export_forder"}.zip',
                     mime="application/zip",
                 )
-            else:
-                st.error("輸入的題目 ID 有誤")
 
+            logger.info(f"Export Submissions Success")
             st.success(f"匯出檔案成功")
 
         except cust_exceptions.SubmissionNotFoundException as e:
+            logger.error(f"SubmissionNotFoundException: {e}")
             st.error(e)
 
         except Exception as e:
-            st.error(f"匯出提交紀錄失敗：{e}")
+            logger.error(f"Submissions Error, Exception: {e}")
+            st.error(f"匯出提交紀錄失敗")
 
 if __name__ == "__main__":
+    logger = logging.getLogger("standalone_logger")
+    logger.info("GET /submissions")
+
     submissions_page()

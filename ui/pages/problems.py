@@ -1,3 +1,4 @@
+import logging
 import pandas as pd
 import streamlit as st
 
@@ -43,13 +44,19 @@ def problems_page():
             else:
                 st.error("輸入的題目 ID 有誤")
 
+            logger.info(f"Export Problems Success")
             st.success(f"匯出檔案成功")
                 
         except cust_exceptions.ProblemsNotFoundException as e:
+            logger.error(f"ProblemsNotFoundException: {e}")
             st.error(e)
         except Exception as e:
+            logger.error(f"Export Problems Error, Exception: {e}")
             st.error(f"匯出失敗： {e}")
 
 
 if __name__ == "__main__":
+    logger = logging.getLogger("standalone_logger")
+    logger.info("GET /problems")
+
     problems_page()
