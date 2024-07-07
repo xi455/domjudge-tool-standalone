@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Any, ByteString, Dict, List, Optional, Tuple
 
 import os
 import shutil
@@ -19,6 +19,7 @@ from domjudge_tool_cli.commands.submissions._submissions import (
 )
 
 from customization.serverices.api.v4 import CustomSubmissionsAPI
+from customization import exceptions as cust_exceptions
 
 
 def file_path(
@@ -26,18 +27,9 @@ def file_path(
     mode: int,
     team: object,
     problem: object,
-):
+) -> str:
     """
     Constructs the file path based on the given parameters.
-
-    Parameters:
-    - cid (str): The contest ID.
-    - mode (int): The mode indicating the file path structure.
-    - team (Team): The team object.
-    - problem (Problem): The problem object.
-
-    Returns:
-    - filepath (str): The constructed file path.
     """
     if mode == 1:
         filepath = f"team_{team.name}/problem_{problem.short_name}"
@@ -105,7 +97,7 @@ async def get_submission_source_code(
     client: DomServerClient,
     cid: str,
     id: str,
-):
+) -> str:
     async with CustomSubmissionsAPI(**client.api_params) as api:
         submissionfile = await api.submission_file_name(
             cid,
@@ -126,7 +118,7 @@ async def get_submission_dirs(
     cid: str,
     submission_ids: List[str],
     mode: int,
-):
+) -> list[str]:
     """Get the file paths for the submissions.
 
     Args:
@@ -158,7 +150,7 @@ async def download_submission_files(
     client: DomServerClient,
     cid: str,
     id: str,
-):
+) -> Tuple[str, Any]:
     judgement_mapping = await judgement_submission_mapping(client, cid)
     async with CustomSubmissionsAPI(**client.api_params) as api:
 
@@ -180,7 +172,7 @@ async def download_submission_zip(
     cid: str,
     submission_ids: List[str],
     mode: int,
-):
+) -> ByteString:
     
     """
     Downloads and zips the submissions identified by the given submission IDs.
@@ -192,7 +184,7 @@ async def download_submission_zip(
         mode (int): The mode of the submissions.
 
     Returns:
-        bytes: The zipped file containing the downloaded submissions.
+        ByteString: The zipped file containing the downloaded submissions.
     """
 
     # 創建一個臨時目錄
@@ -218,6 +210,9 @@ async def download_submission_zip(
         ) for id in submission_ids]
         results = await asyncio.gather(*submissions_list)
 
+        if not results:
+            raise cust_exceptions.SubmissionNotFoundException("沒有找到提交紀錄。")
+
         for path, result in zip(paths, results):
             filename, submission = result
             zip_path = os.path.join(path, filename)    
@@ -241,7 +236,7 @@ async def download_contest_files(
     client: DomServerClient,
     cid: str,
     mode: int,
-):
+) -> ByteString:
     """
     Downloads contest files for a given contest ID.
 
@@ -251,7 +246,7 @@ async def download_contest_files(
         mode (int): The mode of the contest files.
 
     Returns:
-        bytes: The downloaded contest files as a zip archive.
+        ByteString: The downloaded contest files as a zip archive.
     """
     judgement_mapping = await judgement_submission_mapping(client, cid)
     async with CustomSubmissionsAPI(**client.api_params) as api:
@@ -265,7 +260,7 @@ async def download_contest_files(
             problems = await problem_api.all_problems(cid)
             problems_mapping = index_by_id(problems)
 
-        async def get_source_codes(submission) -> None:
+        async def get_source_codes(submission):
             id = submission.id
             
             if (
@@ -301,10 +296,12 @@ async def download_contest_files(
 
         # 創建一個臨時目錄
         async with aiofiles.tempfile.TemporaryDirectory() as temp_dir:
-            # 在臨時目錄中創建一個新的目錄
-    
+        # 在臨時目錄中創建一個新的目錄
             tasks = [get_source_codes(submission) for submission in submissions]
-            await asyncio.gather(*tasks)
+            results = await asyncio.gather(*tasks)
+
+            if not results:
+                raise cust_exceptions.SubmissionNotFoundException("沒有找到提交紀錄。")
 
             # 將臨時目錄壓縮為zip文件
             zip_file_path = shutil.make_archive(temp_dir, 'zip', temp_dir)

@@ -63,7 +63,6 @@ def user_info_page():
     )
 
     if st.button("建立"):
-        
         try:
             create_category(
                 name=category,

@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Dict
 
 
 class UserRoles(Enum):
@@ -12,5 +13,5 @@ class UserRoles(Enum):
     SOURCE_CODE_READER = ("Source code reader", 11)
 
     @classmethod
-    def get_user_roles_values(cls):
+    def get_user_roles_values(cls) -> Dict[str, int]:
         return {role.value[0]: role.value[1] for role in cls}

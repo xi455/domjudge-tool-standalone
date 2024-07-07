@@ -1,5 +1,5 @@
 import asyncio
-from typing import List, Optional
+from typing import ByteString, Dict, List, Optional
 
 from customization._submissions import (
     get_submissions,
@@ -14,7 +14,7 @@ from utils.web import get_config
 def submission_list(
     cid: str,
     language_id: Optional[str] = None,
-):
+) -> Dict[str, object]:
     """
     Console log submissions.
     Args:
@@ -29,7 +29,7 @@ def submission_file(
     cid: str,
     submission_ids: Optional[List[str]],
     mode: int,
-):
+) -> ByteString:
     """
     Download a submission source code files.
     Args:
@@ -47,7 +47,7 @@ def submission_file(
 def contest_files(
     cid: str,
     mode: int,
-):
+) -> ByteString:
     """
     Download a contest all submissions source code files.
     Args:
@@ -70,7 +70,7 @@ def contest_files(
 def view_submission(
     cid: str,
     id: str,
-) -> None:
+) -> str:
     """
     View submission.
     """

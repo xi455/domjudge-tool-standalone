@@ -1,6 +1,7 @@
 import asyncio
 
 from enum import Enum
+from typing import Dict
 
 from customization._submissions import get_submissions
 from utils.check import login_required
@@ -13,12 +14,17 @@ class ModeValue(Enum):
     TEAM_THIRTH = ("選擇三：contest_id/submission_file", 3)
 
     @classmethod
-    def get_mode_values(cls):
+    def get_mode_values(cls) -> Dict[str, int]:
         return {role.value[0]: role.value[1] for role in cls}
 
 
 @login_required
-def get_submissions_record(content_option_dict, contest_name, language_option_dict=None, language_name=None):
+def get_submissions_record(
+    content_option_dict: Dict[str, object],
+    contest_name: str,
+    language_option_dict: Dict[str, object] = None,
+    language_name: str = None,
+) -> Dict[str, object]:
     """
     Retrieves the submissions record for a given contest and language.
 

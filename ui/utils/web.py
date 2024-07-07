@@ -1,12 +1,16 @@
 import streamlit as st
 
 from pathlib import Path
+from typing import ByteString
 from utils.check import login_required
 
 from domjudge_tool_cli.models import DomServerClient
 from customization.serverices.web import CustomDomServerWebGateway
+from customization.serverices.web.base import CustomBaseDomServerWeb
 
-async def get_session(client):
+async def get_session(
+    client: DomServerClient
+) -> CustomBaseDomServerWeb:
     """
     Creates and returns a session object for interacting with the DomServerWeb API.
 
@@ -30,7 +34,9 @@ def get_config() -> DomServerClient:
 
 
 @st.cache_data
-def get_example_data(file_path):
+def get_example_data(
+    file_path: str,
+) -> ByteString:
     """
     Read and return the contents of a file specified by the given file path.
     """

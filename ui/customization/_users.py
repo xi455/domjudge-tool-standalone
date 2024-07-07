@@ -10,6 +10,7 @@ from domjudge_tool_cli.commands.users._users import create_team_and_user, UserEx
 
 from customization.serverices.web import CustomDomServerWebGateway
 from customization._options import get_affiliations_options
+from customization.models import Category
 
 from utils.web import get_session
 
@@ -28,9 +29,7 @@ async def get_users(
     client: DomServerClient,
     ids: Optional[List[str]] = None,
     team_id: Optional[str] = None,
-    format: Optional[UserExportFormat] = None,
-    file: Optional[typer.FileBinaryWrite] = None,
-):
+) -> List[User]:
     async with UsersAPI(**client.api_params) as api:
         users = await api.all_users(ids, team_id)
 
@@ -39,9 +38,6 @@ async def get_users(
 
     if team_id:
         users = list(filter(lambda obj: obj.team_id == team_id, users))
-
-    if format:
-        format.export(users, file)
 
     return users
 
@@ -150,7 +146,7 @@ async def create_category_obj(
     allow_self_registration: Optional[bool] = False,
 ):
     web = await get_session(client)
-    return await web.create_category(
+    await web.create_category(
         name,
         sortorder,
         color,

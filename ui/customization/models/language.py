@@ -1,14 +1,16 @@
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel
 
 
 class Language(BaseModel):
-    lid: Optional[str]
-    external_id: Optional[str]
-    name: Optional[str]
-    entrypoint: Optional[bool]
-    allow_submit: Optional[bool]
-    allow_judge: Optional[bool]
-    timefactor: Optional[int]
-    extensions: Optional[str]
+    lid: str
+    external_id: str
+    name: str
+    entrypoint: bool
+    entry_point_description: Optional[str]
+    allow_submit: bool
+    allow_judge: bool
+    timefactor: int
+    extensions: Optional[List[str]]
+    filter_files_passed_to_compiler_by_extension_list: Optional[bool]

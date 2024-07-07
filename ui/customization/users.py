@@ -1,8 +1,9 @@
 import asyncio
 import typer
 
-from typing import List, Dict, Optional
+from typing import List, Optional
 from domjudge_tool_cli.commands.users._users import UserExportFormat
+from domjudge_tool_cli.models import User
 
 from customization._users import (
     create_teams_and_users,
@@ -22,7 +23,7 @@ def user_list(
         None,
         help="Export file name",
     ),
-):
+) -> List[User]:
     """
     Get DOMjudge users info.
     Args:
@@ -36,7 +37,7 @@ def user_list(
         user_ids = ids.split(",")
 
     client = get_config()
-    return asyncio.run(get_users(client, user_ids, team_id, format, file))
+    return asyncio.run(get_users(client, user_ids, team_id))
 
 def import_users_teams(
     file: Optional[object],
@@ -50,7 +51,7 @@ def import_users_teams(
     password_length: Optional[int] = None,
     password_pattern: Optional[str] = None,
     new_password: bool = False,
-):
+) -> None:
     client = get_config()
     return asyncio.run(
         create_teams_and_users(
@@ -78,7 +79,7 @@ def create_category(
 ):
     client = get_config()
 
-    return asyncio.run(
+    asyncio.run(
         create_category_obj(
             client=client,
             name=name,

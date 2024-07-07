@@ -20,7 +20,7 @@ def check(
     timeout: Optional[float] = None,
     max_connections: Optional[int] = None,
     max_keepalive_connections: Optional[int] = None,
-):
+) -> DomServerClient:
 
     if not all([host, username, password, version]):
         raise ValueError("請提供網址、帳號、密碼、與版本資訊。")

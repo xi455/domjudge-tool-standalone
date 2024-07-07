@@ -2,10 +2,11 @@ import os
 import io
 import zipfile
 
-from typing import List, Optional
+from typing import ByteString, List, Optional, Tuple
 
 from domjudge_tool_cli.models import DomServerClient
 from customization.serverices.web import CustomDomServerWebGateway
+from customization import exceptions as cust_exceptions
 
 from utils.web import get_session
 
@@ -15,18 +16,17 @@ async def download_problems_zips(
     exclude: Optional[List[str]] = None,
     only: Optional[List[str]] = None,
     folder: Optional[str] = None,
-) -> None:
+) -> Tuple[str, ByteString]:
     if not folder:
         folder = "export_problems"
 
     DomServerWeb = CustomDomServerWebGateway(client.version)
-    
     async with DomServerWeb(**client.api_params) as web:
         await web.login()
         problems = await web.get_problems(exclude, only)
 
         if len(problems) == 0:
-            return folder, None
+            raise cust_exceptions.ProblemsNotFoundException("沒有找到題目。")
         
         with io.BytesIO() as f:
             with zipfile.ZipFile(f, 'w') as zipf:
@@ -43,7 +43,7 @@ async def download_problems_zips(
 
             return folder, f.getvalue()
         
-async def problems_info(client):
+async def problems_info(client) -> List[object]:
     web = await get_session(client=client)
     objs = await web.get_problems(exclude=list())
 

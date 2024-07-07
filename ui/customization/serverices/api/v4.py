@@ -1,3 +1,4 @@
+from typing import Any, Tuple
 from domjudge_tool_cli.services.api.v4 import SubmissionsAPI
 
 class CustomSubmissionsAPI(SubmissionsAPI):
@@ -6,7 +7,7 @@ class CustomSubmissionsAPI(SubmissionsAPI):
         cid: str,
         id: str,
         filename: str,
-    ) -> str:
+    ) -> Tuple[str, Any]:
 
         path = self.make_resource(f"/contests/{cid}/submissions/{id}/files")
         file_name = f"{filename}_{id}.zip"

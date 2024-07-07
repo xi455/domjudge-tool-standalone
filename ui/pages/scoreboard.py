@@ -27,9 +27,7 @@ def scoreboard_page():
     )
 
     col1, col2, col3, col4 = st.columns([2, 2, 4, 4])
-    export_button = col1.button("匯出分數")
-
-    if export_button:
+    if col1.button("匯出分數"):
         try:
             cid = content_option_dict[contest_name].cid
 

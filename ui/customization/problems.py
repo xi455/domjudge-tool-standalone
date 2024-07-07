@@ -1,6 +1,6 @@
 import asyncio
 
-from typing import List, Optional
+from typing import ByteString, List, Optional, Tuple
 
 from customization._problems import problems_info, download_problems_zips
 from utils.web import get_config
@@ -9,7 +9,7 @@ def download_problems(
     exclude: Optional[List[str]] = None,
     only: Optional[List[str]] = None,
     folder: Optional[str] = None,
-):
+) -> Tuple[str, ByteString]:
     if len(exclude) == 1 and isinstance(exclude[0], str):
         exclude = exclude[0].split(",")
 
@@ -19,6 +19,6 @@ def download_problems(
     client = get_config()
     return asyncio.run(download_problems_zips(client, exclude, only, folder))
 
-def get_problems_info():
+def get_problems_info() -> List[object]:
     client = get_config()
     return asyncio.run(problems_info(client))

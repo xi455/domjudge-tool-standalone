@@ -1,6 +1,6 @@
 import csv
 from io import StringIO
-from typing import Optional
+from typing import ByteString, Optional
 
 import httpx
 from bs4 import BeautifulSoup
@@ -12,7 +12,7 @@ from utils.web import get_config
 def export(
     cid: str,
     url: Optional[str] = None,
-):
+) -> ByteString:
     """
     Export the scoreboard data as a CSV file.
 

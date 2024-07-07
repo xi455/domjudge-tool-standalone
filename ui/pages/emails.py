@@ -81,9 +81,7 @@ def emails_page():
         type="password",
     )
 
-    submit = st.button("寄送")
-
-    if submit:
+    if st.button("寄送"):
         if emails_csv and template_txt:
             try:
                 send_user_accounts(

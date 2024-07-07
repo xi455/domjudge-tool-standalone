@@ -98,7 +98,7 @@ class CustomDomServerWeb(CustomBaseDomServerWeb, DomServerWeb):
         color: Optional[str] = None,
         visible: bool = True,
         allow_self_registration: bool = False,
-    ) -> Category:
+    ):
         res = await self.get(CategoryPath.ADD)
 
         data = {
@@ -113,16 +113,6 @@ class CustomDomServerWeb(CustomBaseDomServerWeb, DomServerWeb):
 
         res = await self.post(CategoryPath.ADD, body=data)
         assert res.url.path != CategoryPath.ADD, "Category create fail."
-        category_id = res.url.path.split("/")[-1]
-
-        return Category(
-            id=category_id,
-            sortorder=sortorder,
-            name=name,
-            color=color,
-            visible=visible,
-            allow_self_registration=allow_self_registration,
-        )
     
     async def get_categorys(self) -> List[Category]:
         res = await self.get(CategoryPath.LIST)
@@ -232,7 +222,7 @@ class CustomDomServerWeb(CustomBaseDomServerWeb, DomServerWeb):
             td_elements = tr_element.select("td")
             language_info_dict = dict()
             
-            obj_title = ["lid", "external_id", "name", "entrypoint", "allow_submit", "allow_judge", "time_factor", "extensions"]        
+            obj_title = ["lid", "external_id", "name", "entrypoint", "allow_submit", "allow_judge", "timefactor", "extensions"]        
             for index in range(len(obj_title)):
 
                 td = td_elements[index].text.strip()
@@ -243,6 +233,9 @@ class CustomDomServerWeb(CustomBaseDomServerWeb, DomServerWeb):
                 if obj_title[index] == "timefactor":
                     td = int(td)
 
+                if obj_title[index] == "extensions":
+                    td = td.split(", ")
+
                 language_info_dict[obj_title[index]] = td
 
             obj = Language(**language_info_dict)
@@ -250,7 +243,15 @@ class CustomDomServerWeb(CustomBaseDomServerWeb, DomServerWeb):
             if obj.allow_submit:
                 objs.append(obj)
 
-        all_language = Language(name="All")
+        all_language = Language(
+            lid="",
+            external_id="",
+            name="All",
+            entrypoint=False,
+            allow_submit=False,
+            allow_judge=False,
+            timefactor=0,
+        )
         objs.insert(0, all_language)
 
         return objs

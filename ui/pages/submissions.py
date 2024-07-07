@@ -3,6 +3,7 @@ from pydantic import ValidationError
 
 from customization.submissions import submission_file, contest_files
 from customization.options import content_options
+from customization import exceptions as cust_exceptions
 
 from utils.check import login_required
 from utils.submissions import get_submissions_record, ModeValue
@@ -52,12 +53,8 @@ def submissions_page():
 
     col1, col2, col3, col4 = st.columns([2, 3, 3, 4])
 
-    if "subissions_record_dict" in locals():
-        submission_file_submit = col1.button("匯出檔案", key="submission_file_submit")
-    else:
-        submission_file_submit = col1.button("匯出檔案", key="submission_file_submit", disabled=True)
 
-    if submission_file_submit:
+    if col1.button("匯出檔案", key="submission_file_submit"):
         try:
             ids = [subissions_record_dict[i].id for i in submission_file_form_ids_options]
             mode = mode_options_dict.get(submission_file_form_mode)
@@ -78,6 +75,10 @@ def submissions_page():
                 )
 
             st.success(f"匯出檔案成功")
+
+        
+        except cust_exceptions.SubmissionNotFoundException as e:
+            st.error(e)
 
         except Exception as e:
             st.error(f"下載提交檔案失敗：{cid}，{e}")
@@ -104,9 +105,7 @@ def submissions_page():
     )
 
     col1, col2, col3, col4 = st.columns([3, 3, 4, 4])
-    contest_files_submit = col1.button("匯出檔案", key="contest_files_submit")
-
-    if contest_files_submit:
+    if col1.button("匯出檔案", key="contest_files_submit"):
         try:
             cid = content_option_dict[contest_files_form_cid_option].cid
             mode = mode_options_dict.get(contest_files_form_mode)
@@ -127,6 +126,9 @@ def submissions_page():
                 st.error("輸入的題目 ID 有誤")
 
             st.success(f"匯出檔案成功")
+
+        except cust_exceptions.SubmissionNotFoundException as e:
+            st.error(e)
 
         except Exception as e:
             st.error(f"匯出提交紀錄失敗：{e}")

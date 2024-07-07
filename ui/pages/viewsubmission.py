@@ -3,6 +3,7 @@ from pydantic import ValidationError
 
 from customization.submissions import view_submission
 from customization.options import content_options, language_options
+from customization import exceptions as cust_exceptions
 
 from utils.check import login_required
 from utils.submissions import get_submissions_record
@@ -49,26 +50,27 @@ def submissions_page():
         except ValidationError as e:
             st.error(f"無法取得提交紀錄，請檢查 url SSL 是否設定正確")
 
-    if "subissions_record_dict" in locals():
-        submission_id_option = st.selectbox(
-            "選擇提交紀錄",
-            subissions_record_dict,
-        )
+    submission_id_option = st.selectbox(
+        "選擇提交紀錄",
+        subissions_record_dict,
+    )
 
-        submission_submit = st.button("列出提交紀錄")
-    
-    else:
-        submission_submit = st.button("列出提交紀錄", disabled=True)
-
-    if submission_submit:
+    if st.button("列出提交紀錄"):
         try:
             cid = content_option_dict[contest_option].cid
+
+            if not subissions_record_dict:
+                raise cust_exceptions.SubmissionNotFoundException("沒有任何提交紀錄。")
+
             submission_id = subissions_record_dict[submission_id_option].id
 
             st.session_state["submission_source_code"] = view_submission(
                 cid=cid,
                 id=submission_id,
             )
+
+        except cust_exceptions.SubmissionNotFoundException as e:
+            st.error(e)
 
         except Exception as e:
             st.error(f"列出提交紀錄失敗：{e}")

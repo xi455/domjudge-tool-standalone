@@ -84,7 +84,9 @@ class CustomBaseDomServerWeb(WebClient, ABC):
         raise NotImplemented
 
     @abstractmethod
-    async def get_affiliation(self, name: str) -> Optional[Affiliation]:
+    async def get_affiliation(self,
+        name: str
+    ) -> Optional[Affiliation]:
         raise NotImplemented
 
     @abstractmethod
