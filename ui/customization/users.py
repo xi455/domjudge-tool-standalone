@@ -2,30 +2,16 @@ import asyncio
 import typer
 
 from typing import List, Dict, Optional
-from domjudge_tool_cli.commands.users._users import delete_teams_and_users, UserExportFormat
+from domjudge_tool_cli.commands.users._users import UserExportFormat
 
 from customization._users import (
     create_teams_and_users,
     create_category_obj,
-    categories_options,
     get_users,
-    get_affiliations,
 )
 
+
 from utils.web import get_config
-
-
-__all__ = [
-    "app",
-    "UserExportFormat",
-    "create_teams_and_users",
-    "delete_teams_and_users",
-    "get_user",
-    "get_users",
-]
-
-
-app = typer.Typer()
 
 
 def user_list(
@@ -51,7 +37,6 @@ def user_list(
 
     client = get_config()
     return asyncio.run(get_users(client, user_ids, team_id, format, file))
-
 
 def import_users_teams(
     file: Optional[object],
@@ -83,19 +68,6 @@ def import_users_teams(
             new_password,
         ),
     )
-
-
-def get_affiliations_options():
-    client = get_config()
-
-    return asyncio.run(get_affiliations(client))
-    
-
-def get_categories_options() -> Dict[str, object]:
-    client = get_config()
-
-    return asyncio.run(categories_options(client))
-
 
 def create_category(
     name: str = None,

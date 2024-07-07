@@ -19,8 +19,6 @@ def download_problems(
     client = get_config()
     return asyncio.run(download_problems_zips(client, exclude, only, folder))
 
-
 def get_problems_info():
-
     client = get_config()
     return asyncio.run(problems_info(client))

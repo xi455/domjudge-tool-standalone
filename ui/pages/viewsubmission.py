@@ -1,7 +1,8 @@
 import streamlit as st
 from pydantic import ValidationError
 
-from customization.submissions import get_content_options, get_language_options, view_submission
+from customization.submissions import view_submission
+from customization.options import content_options, language_options
 
 from utils.check import login_required
 from utils.submissions import get_submissions_record
@@ -9,8 +10,8 @@ from utils.submissions import get_submissions_record
 
 @login_required
 def submissions_page():
-    content_option_dict = get_content_options()
-    language_option_dict = get_language_options()
+    content_option_dict = content_options()
+    language_option_dict = language_options()
 
     st.set_page_config(page_title="管理提交紀錄頁面", page_icon="📄")
     st.sidebar.header("管理提交紀錄")

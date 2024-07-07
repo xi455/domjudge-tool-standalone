@@ -48,7 +48,6 @@ def file_path(
 
     return filepath
 
-
 async def get_submissions(
     client: DomServerClient,
     cid: str,
@@ -121,27 +120,6 @@ async def get_submission_source_code(
         decoded_str = decoded_bytes.decode('utf-8')
 
         return decoded_str
-
-async def download_submission_files(
-    client: DomServerClient,
-    cid: str,
-    id: str,
-):
-    judgement_mapping = await judgement_submission_mapping(client, cid)
-    async with CustomSubmissionsAPI(**client.api_params) as api:
-
-        submission_file = await api.submission_file_name(cid, id)
-        submission_filename = submission_file.filename.split(".")[0]
-
-        judgement_name = judgement_mapping.get(id)
-
-        submission_filename = f"{submission_filename}_{judgement_name}"
-        
-        return await api.submission_files(
-            cid,
-            id,
-            submission_filename,
-        )
     
 async def get_submission_dirs(
     client: DomServerClient,
@@ -176,6 +154,26 @@ async def get_submission_dirs(
 
     return paths
 
+async def download_submission_files(
+    client: DomServerClient,
+    cid: str,
+    id: str,
+):
+    judgement_mapping = await judgement_submission_mapping(client, cid)
+    async with CustomSubmissionsAPI(**client.api_params) as api:
+
+        submission_file = await api.submission_file_name(cid, id)
+        submission_filename = submission_file.filename.split(".")[0]
+
+        judgement_name = judgement_mapping.get(id)
+
+        submission_filename = f"{submission_filename}_{judgement_name}"
+        
+        return await api.submission_files(
+            cid,
+            id,
+            submission_filename,
+        )
 
 async def download_submission_zip(
     client: DomServerClient,
@@ -238,7 +236,6 @@ async def download_submission_zip(
             zip_file = await f.read()
 
         return zip_file
-
 
 async def download_contest_files(
     client: DomServerClient,

@@ -1,8 +1,8 @@
 import streamlit as st
 
-from customization.users import (
-    get_affiliations_options,
-    get_categories_options,
+from customization.options import (
+    affiliations_options,
+    categories_options,
 )
 from customization.users import import_users_teams
 
@@ -16,8 +16,8 @@ st.set_page_config(page_title="創建帳號頁面", page_icon="📄")
 @login_required
 def users_page():
     roles_options = UserRoles.get_user_roles_values()
-    category_options = get_categories_options()
-    affiliation_dict = {affiliation.shortname: affiliation.id for affiliation in get_affiliations_options()}
+    category_options = categories_options()
+    affiliation_dict = {affiliation.shortname: affiliation.id for affiliation in affiliations_options()}
 
     st.sidebar.header("創建帳號")
     st.title("創建帳號")

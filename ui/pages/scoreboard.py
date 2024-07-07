@@ -1,13 +1,13 @@
 import streamlit as st
 
 from customization.scoreboard import export
-from customization.submissions import get_content_options
+from customization.options import content_options
 
 from utils.check import login_required
 
 @login_required
 def scoreboard_page():
-    content_option_dict = get_content_options()
+    content_option_dict = content_options()
 
     st.set_page_config(page_title="匯出分數頁面", page_icon="📄")
     st.sidebar.header("匯出分數")

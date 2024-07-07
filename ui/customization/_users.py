@@ -9,6 +9,7 @@ from domjudge_tool_cli.services.api.v4 import UsersAPI
 from domjudge_tool_cli.commands.users._users import create_team_and_user, UserExportFormat
 
 from customization.serverices.web import CustomDomServerWebGateway
+from customization._options import get_affiliations_options
 
 from utils.web import get_session
 
@@ -22,7 +23,6 @@ def gen_user_dataset(users: List[Any]) -> Dataset:
         dataset.append(user.dict().values())
 
     return dataset
-
 
 async def get_users(
     client: DomServerClient,
@@ -44,7 +44,6 @@ async def get_users(
         format.export(users, file)
 
     return users
-
 
 async def create_teams_and_users(
     client: DomServerClient,
@@ -75,7 +74,7 @@ async def create_teams_and_users(
     delete_users = []
     dataset = Dataset().load(input_file, format=format.value)
 
-    affiliation_option = await get_affiliations(client)
+    affiliation_option = await get_affiliations_options(client)
     affiliation_ids_name_dict = {affiliation.id: affiliation.shortname for affiliation in affiliation_option}
 
     for item in dataset.dict:
@@ -141,40 +140,7 @@ async def create_teams_and_users(
 
         with open(file_name, "r") as f:
             return f.read()    
-        
-
-async def get_affiliations(client: DomServerClient):
-    DomServerWeb = CustomDomServerWebGateway(client.version)
-    async with DomServerWeb(**client.api_params) as web:
-        await web.login()
-
-        return await web.get_affiliations()
     
-
-async def categories_options(
-    client: DomServerClient,
-) -> Dict[str, object]:
-    DomServerWeb = CustomDomServerWebGateway(client.version)
-    
-    async with DomServerWeb(**client.api_params) as web:
-        await web.login()
-        categorys = await web.get_categorys()
-
-        return {category.name: category for category in categorys}
-    
-
-async def language_options(
-    client: DomServerClient,
-) -> Dict[str, object]:
-    DomServerWeb = CustomDomServerWebGateway(client.version)
-    
-    async with DomServerWeb(**client.api_params) as web:
-        await web.login()
-        languages = await web.get_languages()
-
-        return {language.name: language for language in languages}
-    
-
 async def create_category_obj(
     client: DomServerClient,
     name: str,

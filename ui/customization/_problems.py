@@ -43,7 +43,6 @@ async def download_problems_zips(
 
             return folder, f.getvalue()
         
-
 async def problems_info(client):
     web = await get_session(client=client)
     objs = await web.get_problems(exclude=list())
