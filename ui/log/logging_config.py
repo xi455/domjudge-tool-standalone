@@ -46,7 +46,7 @@ def init_logging():
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 
-    log_path = Path(__file__).parent / "log" / "standalone.log"
+    log_path = Path(__file__).parent / "standalone.log"
     file_handler = logging.FileHandler(log_path)
     file_handler.setLevel(logging.DEBUG)
     file_handler.addFilter(ContextFilter())

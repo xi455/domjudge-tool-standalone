@@ -2,7 +2,7 @@
 import streamlit as st
 
 import logging
-from logging_config import init_logging
+from log.logging_config import init_logging
 
 from customization import general
 
@@ -143,5 +143,6 @@ def home_page():
 if __name__ == "__main__":
     init_logging()
     logger = logging.getLogger("standalone_logger")
+    logger.info("GET /home")
 
     home_page()

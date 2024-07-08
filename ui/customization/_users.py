@@ -1,5 +1,5 @@
 import re
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 import typer
 from tablib import Dataset
@@ -10,20 +10,9 @@ from domjudge_tool_cli.commands.users._users import create_team_and_user, UserEx
 
 from customization.serverices.web import CustomDomServerWebGateway
 from customization._options import get_affiliations_options
-from customization.models import Category
 
 from utils.web import get_session
 
-
-def gen_user_dataset(users: List[Any]) -> Dataset:
-    dataset = Dataset()
-    for idx, user in enumerate(users):
-        if idx == 0:
-            dataset.headers = user.dict().keys()
-
-        dataset.append(user.dict().values())
-
-    return dataset
 
 async def get_users(
     client: DomServerClient,
